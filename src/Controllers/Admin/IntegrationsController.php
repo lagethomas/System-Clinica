@@ -17,7 +17,7 @@ class IntegrationsController extends Controller {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_POST['save_email'])) {
-                $keys = ['smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_email', 'smtp_from_name'];
+                $keys = ['smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_email', 'smtp_from_name', 'smtp_secure'];
                 foreach ($keys as $key) {
                     $val = trim($_POST[$key] ?? '');
                     $stmt = $pdo->prepare("INSERT INTO cp_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
@@ -60,7 +60,7 @@ class IntegrationsController extends Controller {
         }
 
         try {
-            require_once __DIR__ . '/../../includes/mailer.php';
+            require_once __DIR__ . '/../../../includes/mailer.php';
             $subject = "SaaSFlow Core - Teste de Configuração SMTP 🚀";
             $body = "
                 <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>

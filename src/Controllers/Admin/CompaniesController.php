@@ -23,6 +23,7 @@ class CompaniesController extends Controller {
         $planRepo = new PlanRepository($pdo);
         
         $companyRepo->checkAutoBilling();
+        $companyRepo->sendInvoiceReminders();
         // Lógica para puxar as empresas (adaptada para o MVC)
         $stmt = $pdo->prepare("
             SELECT c.*, 

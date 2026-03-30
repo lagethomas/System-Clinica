@@ -216,4 +216,79 @@ class UsersController extends Controller {
             $this->jsonResponse(['success' => false, 'message' => 'Erro: ' . $e->getMessage()], 500);
         }
     }
+
+    public function sendCredentials(): void {
+        Auth::requirePermission('users');
+        $id = !empty($_POST['id']) ? (int)$_POST['id'] : null;
+        $password = !empty($_POST['password']) ? trim($_POST['password']) : null;
+
+        if (!$id) {
+            $this->jsonResponse(['success' => false, 'message' => 'ID inválido.'], 400);
+            return;
+        }
+
+        // Generate auto-password if not provided (now handled in backend)
+        if (!$password) {
+            $password = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"), 0, 8);
+        }
+
+        require_once __DIR__ . '/../../../includes/repositories/UserRepository.php';
+        $userRepo = new UserRepository(\App\Core\Database::getInstance());
+        $user = $userRepo->getById($id);
+
+        if (!$user) {
+            $this->jsonResponse(['success' => false, 'message' => 'Usuário não encontrado.'], 404);
+            return;
+        }
+
+        // If a new password was provided in the prompt, update it in the DB
+        if ($password) {
+            $userRepo->updatePassword($id, $password);
+        }
+
+        // Fetch company slug if it's a company user
+        $loginUrl = SITE_URL . "/login";
+        $companyName = "SaaSFlow Core";
+
+        if (!empty($user['company_id'])) {
+            require_once __DIR__ . '/../../../includes/repositories/CompanyRepository.php';
+            $compRepo = new \CompanyRepository(\App\Core\Database::getInstance());
+            $company = $compRepo->getById((int)$user['company_id']);
+            if ($company) {
+                $loginUrl = SITE_URL . "/" . $company['slug'] . "/login";
+                $companyName = $company['name'];
+            }
+        }
+
+        try {
+            require_once __DIR__ . '/../../../includes/helpers/Mailer.php';
+            $subject = "Seus Dados de Acesso - $companyName 🔐";
+            
+            $passwordRow = $password ? "<p style='margin: 5px 0;'><strong>Senha:</strong> {$password} <span style='font-size:11px; color:#999;'>(atualizada)</span></p>" : "";
+
+            $body = "
+                <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+                    <h2 style='color: #4a6cf7;'>Olá, {$user['name']}!</h2>
+                    <p>Sua conta no sistema <strong>$companyName</strong> está pronta para ser utilizada.</p>
+                    <div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
+                        <p style='margin: 5px 0;'><strong>Usuário:</strong> {$user['username']}</p>
+                        $passwordRow
+                        <p style='margin: 5px 0;'><strong>Link de Acesso:</strong> <a href='$loginUrl'>$loginUrl</a></p>
+                    </div>
+                    <p style='margin-bottom: 20px;'>Recomendamos que você altere sua senha em seu primeiro acesso para maior segurança.</p>
+                    <p style='font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px;'>Sistema desenvolvido por SaaSFlow Core</p>
+                </div>
+            ";
+
+            $sent = \Mailer::send($user['email'], $subject, $body);
+
+            if ($sent) {
+                $this->jsonResponse(['success' => true, 'message' => 'Dados de acesso enviados com sucesso para ' . $user['email']]);
+            } else {
+                $this->jsonResponse(['success' => false, 'message' => 'Falha ao enviar e-mail. Verifique a configuração SMTP.'], 500);
+            }
+        } catch (\Exception $e) {
+            $this->jsonResponse(['success' => false, 'message' => 'Erro: ' . $e->getMessage()], 500);
+        }
+    }
 }

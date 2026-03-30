@@ -116,8 +116,12 @@ class UserRepository {
     /**
      * Update last login
      */
-    public function updateLastLogin(int $id): bool {
-        $stmt = $this->pdo->prepare("UPDATE cp_users SET last_login = NOW() WHERE id = ?");
-        return $stmt->execute([$id]);
+    /**
+     * Update only the password for a user
+     */
+    public function updatePassword(int $id, string $plainPassword): bool {
+        $hash = password_hash($plainPassword, PASSWORD_DEFAULT);
+        $stmt = $this->pdo->prepare("UPDATE cp_users SET password = ? WHERE id = ?");
+        return $stmt->execute([$hash, $id]);
     }
 }

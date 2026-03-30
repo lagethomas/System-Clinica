@@ -16,6 +16,11 @@ class Mailer {
         $pdo = \App\Core\Database::getInstance();
         $logFile = dirname(__DIR__, 2) . '/logs/email.log';
         $timestamp = date('Y-m-d H:i:s');
+        
+        // Ensure logs directory exists
+        if (!is_dir(dirname($logFile))) {
+            @mkdir(dirname($logFile), 0777, true);
+        }
 
         // Fetch Global SMTP Settings
         $stmt_s = $pdo->prepare("SELECT setting_key, setting_value FROM cp_settings WHERE setting_key IN ('smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_email', 'smtp_from_name', 'smtp_secure', 'enable_system_logs')");
@@ -25,9 +30,7 @@ class Mailer {
         $logsEnabled = (($settings['enable_system_logs'] ?? '0') === '1');
 
         if (empty($settings['smtp_host'])) {
-            if ($logsEnabled) {
-                file_put_contents($logFile, "[$timestamp] ERROR: SMTP host not configured.\n", FILE_APPEND);
-            }
+            file_put_contents($logFile, "[$timestamp] ERROR: SMTP host not configured in database.\n", FILE_APPEND);
             return false;
         }
 
@@ -69,12 +72,13 @@ class Mailer {
 
             return $mail->send();
 
-        } catch (Exception $e) {
-            if ($logsEnabled) {
-                $errorMsg = "[$timestamp] ERROR: " . $mail->ErrorInfo . " (To: $to, Subject: $subject)\n";
-                file_put_contents($logFile, $errorMsg, FILE_APPEND);
+        } catch (\Throwable $e) {
+            $errorMsg = "[$timestamp] EXCEPTION: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . "\n";
+            file_put_contents($logFile, $errorMsg, FILE_APPEND);
+            if (!empty($mail->ErrorInfo)) {
+                file_put_contents($logFile, "[$timestamp] SMTP ERROR: " . $mail->ErrorInfo . "\n", FILE_APPEND);
             }
-            error_log("MAILER ERROR: " . $mail->ErrorInfo);
+            error_log("MAILER ERROR: " . $e->getMessage());
             return false;
         }
     }

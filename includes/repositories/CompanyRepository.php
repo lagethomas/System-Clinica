@@ -579,4 +579,113 @@ class CompanyRepository {
         }
         return false;
     }
+    /**
+     * Send email reminders for upcoming and overdue invoices
+     */
+    public function sendInvoiceReminders() {
+        $this->debugLog("Reminders: Starting invoice reminder checks...");
+        
+        // Defensive check: Verify if the column 'last_reminder_date' exists
+        try {
+            $check = $this->pdo->query("SHOW COLUMNS FROM `cp_invoices` LIKE 'last_reminder_date'")->fetch();
+            if (!$check) {
+                $this->debugLog("Reminders: Column 'last_reminder_date' missing. Please run migrations.");
+                return;
+            }
+        } catch (\Exception $e) {
+            return;
+        }
+
+        // Fetch settings
+        $stmt_set = $this->pdo->prepare("SELECT setting_key, setting_value FROM cp_settings WHERE setting_key IN ('days_before_notify', 'billing_grace_days')");
+        $stmt_set->execute();
+        $sets = $stmt_set->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        $daysBefore = (int)($sets['days_before_notify'] ?? 5);
+        $graceDays = (int)($sets['billing_grace_days'] ?? 10);
+        
+        $today = date('Y-m-d');
+
+        // 1. Upcoming Reminders (Invoice due in X days)
+        $stmt_up = $this->pdo->prepare("
+            SELECT i.*, c.name as company_name, c.email as company_email 
+            FROM cp_invoices i
+            JOIN cp_companies c ON i.company_id = c.id
+            WHERE i.status = 'pending' 
+            AND i.due_date = DATE_ADD(?, INTERVAL ? DAY)
+            AND (i.last_reminder_date IS NULL OR i.last_reminder_date != ?)
+        ");
+        $stmt_up->execute([$today, $daysBefore, $today]);
+        $upcoming = $stmt_up->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($upcoming as $inv) {
+            $this->mailReminder($inv, 'upcoming');
+        }
+
+        // 2. Overdue Reminders (Overdue today or specific intervals)
+        // Remind on: day 1 overdue, day 5 overdue, and day grace-1 
+        $stmt_ov = $this->pdo->prepare("
+            SELECT i.*, c.name as company_name, c.email as company_email 
+            FROM cp_invoices i
+            JOIN cp_companies c ON i.company_id = c.id
+            WHERE i.status = 'pending' 
+            AND (
+                i.due_date = DATE_SUB(?, INTERVAL 1 DAY) OR 
+                i.due_date = DATE_SUB(?, INTERVAL 5 DAY) OR
+                i.due_date = DATE_SUB(?, INTERVAL ? DAY)
+            )
+            AND (i.last_reminder_date IS NULL OR i.last_reminder_date != ?)
+        ");
+        $stmt_ov->execute([$today, $today, $graceDays - 1, $today]);
+        $overdue = $stmt_ov->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($overdue as $inv) {
+            $this->mailReminder($inv, 'overdue');
+        }
+    }
+
+    private function mailReminder($inv, $type) {
+        if (empty($inv['company_email'])) return;
+        
+        $this->debugLog("Reminders: Sending $type reminder for Invoice #{$inv['id']} to {$inv['company_email']}");
+        
+        require_once __DIR__ . '/../helpers/Mailer.php';
+        
+        $companyName = $inv['company_name'];
+        $dueDate = date('d/m/Y', strtotime($inv['due_date']));
+        $amount = number_format((float)$inv['amount'], 2, ',', '.');
+        $loginUrl = SITE_URL . "/login"; 
+        
+        if ($type === 'upcoming') {
+            $subject = "Lembrete de Vencimento - Fatura em Aberto 📄";
+            $title = "Sua fatura vence em breve";
+            $message = "Olá, <strong>$companyName</strong>! Gostaríamos de lembrar que sua fatura no valor de <strong>R$ $amount</strong> vence no dia <strong>$dueDate</strong>.";
+        } else {
+            $subject = "ALERTA: Fatura Vencida - Evite a suspensão do serviço ⚠️";
+            $title = "Fatura em Atraso";
+            $message = "Olá, <strong>$companyName</strong>! Identificamos que sua fatura no valor de <strong>R$ $amount</strong> venceu em <strong>$dueDate</strong> e ainda não consta como paga em nosso sistema.";
+        }
+
+        $body = "
+            <div style='font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;'>
+                <h2 style='color: #4a6cf7;'>$title</h2>
+                <p>$message</p>
+                <div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
+                    <p style='margin: 5px 0;'><strong>Fatura:</strong> #{$inv['id']}</p>
+                    <p style='margin: 5px 0;'><strong>Valor:</strong> R$ $amount</p>
+                    <p style='margin: 5px 0;'><strong>Vencimento:</strong> $dueDate</p>
+                </div>
+                <p>Para garantir a continuidade do serviço, realize o pagamento acessando o link abaixo:</p>
+                <p style='text-align: center; margin: 30px 0;'>
+                    <a href='$loginUrl' style='background: #4a6cf7; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>VER FATURA / PAGAR</a>
+                </p>
+                <p style='font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px;'>Se você já realizou o pagamento, por favor desconsidere este e-mail. A baixa ocorre automaticamente em até 24h.</p>
+            </div>
+        ";
+
+        if (\Mailer::send($inv['company_email'], $subject, $body)) {
+            $stmt = $this->pdo->prepare("UPDATE cp_invoices SET last_reminder_date = ? WHERE id = ?");
+            $stmt->execute([date('Y-m-d'), $inv['id']]);
+        }
+    }
 }

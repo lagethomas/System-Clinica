@@ -25,6 +25,7 @@ $router->add('GET', '/admin/users', ['controller' => 'Admin\\UsersController', '
 $router->add('GET', '/users', ['controller' => 'Admin\\UsersController', 'method' => 'index', 'middlewares' => [$auth]]);
 $router->add('POST', '/api/admin/users/save', ['controller' => 'Admin\\UsersController', 'method' => 'save', 'middlewares' => [$auth]]);
 $router->add('POST', '/api/admin/users/delete', ['controller' => 'Admin\\UsersController', 'method' => 'delete', 'middlewares' => [$auth]]);
+$router->add('POST', '/api/admin/users/send_credentials', ['controller' => 'Admin\\UsersController', 'method' => 'sendCredentials', 'middlewares' => [$auth]]);
 
 $router->add('GET', '/admin/logs', ['controller' => 'Admin\\LogsController', 'method' => 'index', 'middlewares' => [$auth, $admin]]);
 $router->add('GET', '/logs', ['controller' => 'Admin\\LogsController', 'method' => 'index', 'middlewares' => [$auth, $admin]]);

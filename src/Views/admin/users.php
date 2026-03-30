@@ -65,9 +65,10 @@
                         <?php endif; ?>
                     </td>
                     <td>
-                        <button class="btn-user-action" onclick="openUserModal(<?php echo htmlspecialchars(json_encode($user)); ?>)"><i data-lucide="edit" class="icon-lucide"></i></button>
+                        <button class="btn-user-action" onclick="sendUserCredentials(<?php echo $user['id']; ?>)" title="Enviar Dados de Acesso"><i data-lucide="send" class="icon-lucide"></i></button>
+                        <button class="btn-user-action" onclick="openUserModal(<?php echo htmlspecialchars(json_encode($user)); ?>)" title="Editar Usuário"><i data-lucide="edit" class="icon-lucide"></i></button>
                         <?php if (strtolower($user['role'] ?? '') !== 'administrador'): ?>
-                            <button class="btn-user-action danger" onclick="deleteUser(<?php echo $user['id']; ?>)"><i data-lucide="trash" class="icon-lucide"></i></button>
+                            <button class="btn-user-action danger" onclick="deleteUser(<?php echo $user['id']; ?>)" title="Excluir Usuário"><i data-lucide="trash" class="icon-lucide"></i></button>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -237,6 +238,22 @@ async function deleteUser(id) {
         if (res && res.success) {
             UI.showToast(res.message || 'Usuário removido', 'success');
             setTimeout(() => window.location.reload(), 1500);
+        }
+    }
+}
+
+async function sendUserCredentials(id) {
+    if (await UI.confirm('Deseja gerar uma nova senha e enviar os dados de acesso para este usuário por e-mail?', {
+        title: 'Enviar Acesso',
+        confirmText: 'Sim, Gerar e Enviar',
+        type: 'primary',
+        icon: 'send'
+    })) {
+        const res = await UI.request('<?php echo SITE_URL; ?>/api/admin/users/send_credentials', { id });
+        if (res && res.success) {
+            UI.showToast(res.message || 'Dados enviados', 'success');
+        } else {
+            UI.showToast(res.message || 'Falha ao enviar', 'error');
         }
     }
 }
