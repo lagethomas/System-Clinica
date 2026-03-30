@@ -64,6 +64,11 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
 }
+
+.sidebar-header span {
+    font-size: 0.9rem; /* ajuste conforme desejar */
+}
+
 /* Lucide Icon Base & Sizing */
 .icon-lucide {
     width: 1.15em;
