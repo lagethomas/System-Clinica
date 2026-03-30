@@ -1,6 +1,6 @@
 <?php
 $ps = $platform_settings ?? [];
-$systemName = !empty($company['name']) ? $company['name'] : ($ps['system_name'] ?? 'Página do Cardápio');
+$systemName = !empty($company['name']) ? $company['name'] : ($ps['system_name'] ?? 'Página do Sistema');
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -67,8 +67,8 @@ $systemName = !empty($company['name']) ? $company['name'] : ($ps['system_name'] 
         <div class="icon-box">
             <i data-lucide="clock-4" style="width: 40px; height: 40px;"></i>
         </div>
-        <h1>Cardápio Indisponível</h1>
-        <p>O cardápio desta loja encontra-se temporariamente indisponível. <br> Por favor, entre em contato com o estabelecimento ou tente novamente mais tarde.</p>
+        <h1>Sistema Indisponível</h1>
+        <p>O sistema desta clínica encontra-se temporariamente indisponível. <br> Por favor, entre em contato com o estabelecimento ou tente novamente mais tarde.</p>
         <a href="javascript:location.reload()" class="btn-home">Tentar Novamente</a>
     </div>
     <script>lucide.createIcons();</script>

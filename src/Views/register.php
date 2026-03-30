@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crie sua Conta SaaS | System Restaurante</title>
+    <title>Crie sua Conta SaaS | System Clinica</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
     <style>
@@ -23,23 +23,23 @@
 <body>
     <div class="register-card">
         <div class="text-center mb-4">
-            <h2><i data-lucide="utensils" class="icon-lucide"></i> System Restaurante SaaS</h2>
-            <p class="text-muted">Digitalize seu restaurante em minutos.</p>
+            <h2><i data-lucide="user-round" class="icon-lucide"></i> System Clinica</h2>
+            <p class="text-muted">Digitalize sua clínica em minutos.</p>
         </div>
         
         <form id="register-form" method="POST" action="/register">
             <div class="mb-3">
-                <label class="form-label">Nome do Restaurante</label>
-                <input type="text" name="restaurant_name" id="restaurant_name" class="form-control" placeholder="Seu Restaurante Lanches" required>
+                <label class="form-label">Nome da Clínica</label>
+                <input type="text" name="restaurant_name" id="restaurant_name" class="form-control" placeholder="Sua Clínica ou Consultório" required>
             </div>
             
             <div class="mb-3">
                 <label class="form-label">Link (Slug)</label>
                 <div class="input-group">
                     <span class="input-group-text">seusite.com/</span>
-                    <input type="text" name="slug" id="slug" class="form-control slug-input" placeholder="seu-restaurante" required>
+                    <input type="text" name="slug" id="slug" class="form-control slug-input" placeholder="sua-clinica" required>
                 </div>
-                <small class="text-muted">O endereço onde seus clientes acessarão o cardápio.</small>
+                <small class="text-muted">O endereço onde seus clientes acessarão seu sistema.</small>
             </div>
 
             <div class="mb-3">

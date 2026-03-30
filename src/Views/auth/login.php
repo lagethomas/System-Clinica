@@ -64,7 +64,7 @@ $primaryRGB = hex2rgb_auth($primaryColor);
                 <?php if ($systemLogo): ?>
                     <img src="<?php echo $systemLogo; ?>" alt="Logo">
                 <?php else: ?>
-                    <i data-lucide="utensils" class="icon-lucide"></i>
+                    <i data-lucide="user-round" class="icon-lucide"></i>
                 <?php endif; ?>
             </div>
             <h2 class="auth-title"><?php echo $system_name; ?></h2>
@@ -120,14 +120,6 @@ $primaryRGB = hex2rgb_auth($primaryColor);
                 </span>
             </button>
         </form>
-        
-        <?php if (!empty($company) && !empty($company['slug'])): ?>
-        <div class="auth-footer">
-             <a href="<?php echo SITE_URL . '/' . htmlspecialchars($company['slug']); ?>">
-                 <i data-lucide="arrow-left" class="icon-lucide"></i> Voltar ao Cardápio
-             </a>
-        </div>
-        <?php endif; ?>
     </div>
 
     <script src="<?php echo SITE_URL; ?>/assets/js/components/ui-core.js"></script>
