@@ -1,0 +1,153 @@
+:root {
+    /* Base Colors - Ultra Clean Medical Theme */
+    --bg-dark: #f0f4f8; /* Light Sky Blue Tint */
+    --bg-surface: #ffffff;
+    --bg-card: #ffffff;
+    --bg-sidebar: #1e3a8a; /* Deep Navy Blue for Sidebar */
+
+    /* Brand Colors - Clinical Blue */
+    --primary: #2563eb;
+    --primary-light: #3b82f6;
+    --primary-rgb: 37, 99, 235;
+    --accent: #0ea5e9;
+    --accent-rgb: 14, 165, 233;
+
+    /* Interface Colors */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #0ea5e9;
+
+    /* Text Colors - High Contrast */
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --text-on-primary: #ffffff;
+    --text-color: #ffffff; /* For primary buttons */
+
+    /* Border & Glass */
+    --border: #e2e8f0;
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(37, 99, 235, 0.2);
+
+    /* Effects */
+    --calendar-filter: none;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+/* --- THEME OVERRIDES --- */
+
+body {
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.05) 0px, transparent 50%);
+}
+
+/* Fix Header Contrast: White Header for the light theme */
+.top-bar {
+    background: #ffffff !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.top-bar .page-title {
+    color: #1e3a8a !important; /* Force Deep Blue for Title */
+    font-weight: 800;
+}
+
+.top-bar .menu-toggle {
+    color: #1e3a8a !important;
+}
+
+/* Sidebar Styling - Solid Deep Blue */
+.sidebar {
+    background: #1e3a8a !important;
+    border-right: none !important;
+}
+
+.sidebar .logo {
+    color: #ffffff !important;
+}
+
+.sidebar .nav-link, .sidebar .sidebar-nav li a {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.sidebar .sidebar-nav li a:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+.sidebar .sidebar-nav li.active a {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #3b82f6;
+}
+
+.sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: #172554 !important;
+}
+
+.user-name { color: #ffffff !important; }
+.user-role { color: rgba(255, 255, 255, 0.6) !important; }
+
+/* Dashboard Cards */
+.card, .dashboard-card, .profile-main-card, .stat-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Modals - Clean White Header/Footer */
+.modal-header, .modal-footer, .confirm-buttons, .prompt-buttons {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+.modal-header h3 {
+    color: #1e3a8a !important; /* Navy Title */
+}
+
+.stat-icon {
+    background: rgba(37, 99, 235, 0.1) !important;
+    color: #2563eb !important;
+}
+
+/* Professional Gradients on Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3) !important;
+}
+
+.btn-secondary {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important; /* Steel Gray text */
+}
+
+.btn-secondary:hover {
+    background: #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
+/* Inputs */
+.form-control {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #1e293b !important;
+}
+
+.form-control:focus {
+    border-color: #3b82f6 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}

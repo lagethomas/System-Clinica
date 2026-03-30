@@ -1,0 +1,914 @@
+/* ==============================================================
+   COMANDA MODULE STYLES
+   Segue exatamente o padrão do sistema (ver users.css, dashboard.css)
+   Todas as cores e estilos via variáveis do tema.
+   ============================================================== */
+
+/* Expande o modal global quando a comanda está aberta */
+#global-modal .modal-content:has(.comanda-modal-layout) {
+    max-width: 1000px !important;
+}
+
+/* Estilos globais de ações (copiados do core para consistência) */
+.btn-user-action {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-left: 5px;
+}
+.btn-user-action:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.1);
+}
+.btn-user-delete:hover {
+    color: #ff4d4d;
+    border-color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
+}
+
+/* Grid de Mesas */
+.mesas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+@media (min-width: 1300px) {
+    .mesas-grid {
+        grid-template-columns: repeat(7, 1fr);
+    }
+}
+
+/* Card de Mesa */
+.mesa-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 15px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: 180px;
+    justify-content: space-between;
+}
+
+.btn-remove-mesa {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 77, 77, 0.1);
+    color: var(--danger);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    opacity: 0;
+    z-index: 10;
+}
+
+.mesa-card:hover .btn-remove-mesa {
+    opacity: 1;
+}
+
+.btn-remove-mesa:hover {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-qr-mesa {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid rgba(var(--primary-rgb), 0.2);
+    background: rgba(var(--primary-rgb), 0.05);
+    color: var(--primary);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    z-index: 10;
+}
+
+.btn-qr-mesa:hover {
+    background: var(--primary);
+    color: #000;
+    transform: scale(1.1);
+}
+
+.mesa-card:hover {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.04);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+.mesa-card.ocupada { border-bottom: 4px solid var(--danger); }
+.mesa-card.livre { border-bottom: 4px solid var(--success); }
+
+.mesa-icon {
+    font-size: 36px;
+    margin-top: 15px;
+}
+
+.mesa-card.livre .mesa-icon { color: var(--success); opacity: 0.5; }
+.mesa-card.ocupada .mesa-icon { color: var(--danger); }
+
+.mesa-numero {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+.mesa-status-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.mesa-card.livre .mesa-status-badge {
+    background: rgba(0, 255, 127, 0.1);
+    color: var(--success);
+}
+
+.mesa-card.ocupada .mesa-status-badge {
+    background: rgba(255, 77, 77, 0.1);
+    color: var(--danger);
+}
+
+.mesa-footer {
+    width: 100%;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+}
+
+.mesa-total {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--primary);
+    display: block;
+}
+
+.mesa-itens {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* Comanda Panel (lado direito do modal global expandido) */
+.comanda-modal-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0;
+    min-height: 500px;
+}
+
+.comanda-itens-list {
+    padding: 10px 20px 20px 0;
+    border-right: 1px solid var(--border);
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+/* Scrollbar estilizada */
+.comanda-itens-list::-webkit-scrollbar,
+.quick-add-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+.comanda-itens-list::-webkit-scrollbar-thumb,
+.quick-add-scroll::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+
+.comanda-actions-panel {
+    padding: 0 0 0 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.quick-add-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 5px;
+}
+
+.comanda-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+}
+
+.comanda-item-info {
+    flex: 1;
+}
+
+.comanda-item-nome {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: block;
+}
+
+.comanda-item-qtd {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.comanda-item-preco {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary);
+    white-space: nowrap;
+}
+
+.btn-remove-item {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 6px;
+    transition: var(--transition);
+    font-size: 13px;
+}
+
+.btn-remove-item:hover {
+    color: var(--danger);
+    background: rgba(255, 77, 77, 0.1);
+}
+
+.comanda-total-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(var(--primary-rgb), 0.06);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 10px;
+}
+
+.comanda-total-label {
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.comanda-total-valor {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.btn-produto-rapido {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    padding: 10px 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 13px;
+    text-align: left;
+    gap: 10px;
+}
+
+.btn-produto-rapido:hover {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.08);
+    transform: translateX(4px);
+}
+
+.btn-produto-preco {
+    color: var(--primary);
+    font-weight: 700;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+.comanda-actions-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    margin-top: 10px;
+    display: block;
+}
+
+.empty-comanda {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.empty-comanda i {
+    font-size: 40px;
+    margin-bottom: 10px;
+    opacity: 0.2;
+    display: block;
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .comanda-modal-layout {
+        grid-template-columns: 1fr;
+    }
+    .comanda-itens-list {
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    .comanda-actions-panel {
+        padding-left: 0;
+    }
+    .mesas-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+}
+
+/* ==============================================================
+   PAYMENT MODAL (Standardized with PDV)
+   ============================================================== */
+
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.pay-method-opt { cursor: pointer; }
+.pay-method-opt input { display: none; }
+.pay-method-opt span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-weight: 600;
+    transition: 0.3s;
+    color: var(--text-muted);
+}
+
+.pay-method-opt i { font-size: 24px; }
+.pay-method-opt input:checked + span {
+    background: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+#dinheiro-fields {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 15px;
+    border: 1px dashed var(--border);
+}
+
+#troco-display {
+    margin-top:20px; 
+    text-align:center; 
+    padding: 15px; 
+    background: rgba(var(--primary-rgb), 0.1); 
+    border-radius: 12px;
+}
+/* ... (previous styles) ... */
+
+/* Classes for dynamic elements previously with inline styles */
+.comanda-empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 60px;
+    grid-column: 1 / -1;
+}
+
+.comanda-empty-icon {
+    margin-bottom: 15px;
+    opacity: 0.1;
+    display: block;
+    color: var(--primary);
+    font-size: 3rem;
+}
+
+.comanda-empty-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.mesa-cliente-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.1);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.mesa-footer-hidden {
+    display: none !important;
+}
+
+.comanda-form-group-left {
+    text-align: left;
+}
+
+.comanda-input-large {
+    height: 55px;
+    font-size: 18px;
+}
+
+.comanda-error-msg {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 8px;
+    font-weight: 600;
+}
+
+.comanda-modal-footer-flex {
+    padding: 20px 0 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+}
+
+.comanda-btn-flex-1 { flex: 1; }
+.comanda-btn-flex-2 { flex: 2; }
+
+.comanda-quick-add-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.comanda-btn-produto-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.comanda-btn-produto-header {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.comanda-btn-produto-nome {
+    font-weight: 600;
+}
+
+.comanda-btn-produto-codigo {
+    font-size: 9px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.comanda-btn-produto-cat {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.comanda-item-preco-large {
+    font-size: 16px;
+}
+
+.comanda-virtual-item-couvert {
+    border-left: 3px solid #f59e0b;
+    background: rgba(245, 158, 11, 0.05);
+    border-radius: 8px;
+    margin-bottom: 5px;
+    padding: 10px;
+}
+
+.comanda-virtual-item-taxa {
+    border-left: 3px solid #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 8px;
+    margin-bottom: 5px;
+    padding: 10px;
+}
+
+.comanda-btn-remover-taxa-icon {
+    color: #ef4444;
+}
+
+.comanda-client-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.comanda-client-input {
+    height: 45px;
+    border-radius: 10px;
+}
+
+.comanda-reserve-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.comanda-reserve-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.comanda-reserve-icon {
+    color: #f59e0b;
+}
+
+.comanda-reserve-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.comanda-reserve-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.comanda-btn-action-full {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 12px;
+}
+
+.comanda-modal-body-scroll {
+    max-height: 70vh;
+}
+
+.comanda-extrato-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.comanda-extrato-header {
+    margin-bottom: 20px;
+    border-left: 3px solid var(--primary);
+    padding-left: 15px;
+}
+
+.comanda-extrato-label {
+    margin: 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.comanda-extrato-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.comanda-total-container {
+    background: rgba(var(--primary-rgb), 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.comanda-total-hint {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 5px;
+}
+
+.comanda-total-value-huge {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--primary);
+}
+
+.comanda-actions-panel-border {
+    border-left: 1px solid var(--border);
+    padding-left: 20px;
+}
+
+.comanda-actions-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.comanda-icon-bolt {
+    color: var(--primary);
+}
+
+.comanda-search-wrapper {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.comanda-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.comanda-search-input {
+    padding-left: 35px;
+    height: 45px;
+    font-size: 14px;
+    border-radius: 12px;
+}
+
+.comanda-quick-add-container {
+    max-height: 350px;
+}
+
+.comanda-modal-footer-padded {
+    padding: 15px 25px;
+    border-top: 1px solid var(--border);
+}
+
+.comanda-btn-radius-10 {
+    border-radius: 10px;
+}
+
+.comanda-payment-info {
+    background: rgba(var(--primary-rgb), 0.05);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: left;
+}
+
+.comanda-payment-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.comanda-payment-row-last {
+    display: flex;
+    justify-content: space-between;
+}
+
+.comanda-payment-body-scroll {
+    padding: 20px;
+}
+
+.comanda-payment-header-center {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.comanda-payment-total-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.comanda-payment-total-value {
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--primary);
+    margin: 0;
+}
+
+.comanda-payment-method-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.comanda-payment-input-huge {
+    height: 65px;
+    font-size: 28px;
+    text-align: center;
+    border-radius: 15px;
+    font-weight: 800;
+}
+
+.comanda-payment-troco-container {
+    margin-top: 20px;
+    text-align: center;
+    padding: 20px;
+    background: rgba(var(--primary-rgb), 0.1);
+    border-radius: 15px;
+}
+
+.comanda-payment-troco-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.comanda-payment-troco-value {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--primary);
+}
+
+.comanda-payment-footer {
+    padding: 25px;
+    border-top: 1px solid var(--border);
+}
+
+.comanda-payment-btn-cancel {
+    padding: 15px 30px;
+    border-radius: 12px;
+}
+
+.comanda-payment-btn-finish {
+    flex: 1;
+    height: 60px;
+    font-size: 20px;
+    border-radius: 15px;
+    font-weight: 800;
+}
+
+.qr-code-body {
+    text-align: center;
+    padding: 10px;
+}
+
+.qr-code-img-wrapper {
+    background: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.qr-code-img {
+    width: 200px;
+    height: 200px;
+    display: block;
+}
+
+.qr-code-title {
+    margin-bottom: 5px;
+    color: var(--text-main);
+}
+
+.qr-code-hint {
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+
+.qr-code-input-label {
+    text-align: left;
+    display: block;
+}
+
+.qr-code-input {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+}
+
+.qr-code-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.qr-code-btn-link {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.qr-code-btn-test {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Pre-loader and Loading State */
+.comanda-preloader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    width: 100%;
+    grid-column: 1 / -1;
+    gap: 20px;
+}
+
+.comanda-loader-ring {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(var(--primary-rgb), 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: comanda-spin 1s ease-in-out infinite;
+    position: relative;
+    box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.2);
+}
+
+.comanda-loader-ring::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 2px solid rgba(var(--primary-rgb), 0.05);
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    opacity: 0.5;
+    animation: comanda-spin 2s ease-in-out infinite reverse;
+}
+
+.comanda-loader-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: comanda-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes comanda-spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes comanda-pulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1); }
+}
+
+/* Enhancing existing Mesa Grid for better loading transition */
+.mesas-grid {
+    transition: opacity 0.3s ease-in-out;
+}

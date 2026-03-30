@@ -1,0 +1,38 @@
+/* Floating Autocomplete Dropdown */
+.floating-autocomplete-dropdown {
+    display: none;
+    background: #000000;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 6px;
+}
+.floating-ac-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.floating-ac-item:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+}
+.floating-ac-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(var(--primary-rgb), 0.08);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+.floating-ac-icon i { width: 16px; height: 16px; }
+.floating-ac-info { display: flex; flex-direction: column; }
+.floating-ac-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+.floating-ac-sub { font-size: 11px; color: var(--text-muted); }

@@ -1,0 +1,15 @@
+# ─────────────────────────────────────────────────────────────────
+# SaaSFlow Core — Apache .htaccess (Root Folder)
+# Redireciona todas as requisições para a pasta /public
+# ─────────────────────────────────────────────────────────────────
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 1. Se já estiver na pasta public, não recomeça o loop
+    RewriteCond %{REQUEST_URI} !^/public/
+
+    # 2. Redireciona tudo para /public/
+    RewriteRule ^(.*)$ public/$1 [L,QSA]
+</IfModule>

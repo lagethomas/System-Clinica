@@ -1,0 +1,226 @@
+/* Settings Module CSS - Synced with System Core */
+
+.settings-main-card {
+    border-radius: 16px;
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    background: var(--bg-card);
+}
+
+.settings-header-box {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+.settings-header-box h5 {
+    font-weight: 700;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+    color: var(--primary);
+}
+
+.settings-header-box p {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin: 0;
+}
+
+/* 4 Column Grid for Settings */
+.form-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+/* 5 Column Grid for Settings */
+.form-grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+}
+
+/* Upload Box Wrapper - Rule 35: Dashed borders */
+.upload-box-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed rgba(var(--primary-rgb), 0.15);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+    padding: 30px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+}
+
+.upload-box-wrapper:hover {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.05);
+}
+
+.upload-label {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.upload-preview-box {
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    height: 70px !important;
+}
+
+.upload-preview-box img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.upload-flex-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    width: 100%;
+}
+
+.upload-actions-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.logo-img {
+    object-fit: contain;
+}
+
+.bg-img {
+    object-fit: cover;
+}
+
+.settings-footer-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-save-btn {
+    padding: 12px 50px;
+    border-radius: 30px;
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.settings-save-btn:hover {
+    transform: translateY(-2px);
+    background: var(--primary-light);
+}
+
+/* Theme Selection Grid */
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.theme-card-label {
+    cursor: pointer;
+    position: relative;
+    margin: 0;
+    display: block;
+}
+
+.theme-card-ui {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.theme-card-preview {
+    height: 45px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.theme-card-accent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.theme-card-name {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.theme-check-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    color: #000;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 5;
+}
+
+.theme-card-label input[type="radio"]:checked + .theme-card-ui {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.1);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.theme-card-label input[type="radio"]:checked + .theme-card-ui .theme-card-name {
+    color: var(--primary);
+    opacity: 1;
+}
+
+.theme-card-label input[type="radio"]:checked + .theme-card-ui .theme-check-icon {
+    display: flex;
+}
+
+.theme-card-label:hover .theme-card-ui {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(var(--primary-rgb), 0.3);
+}
+
+@media (max-width: 1400px) { .form-grid-5 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1100px) { .form-grid-5, .form-grid-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 650px) { .form-grid-5, .form-grid-4 { grid-template-columns: 1fr; } }

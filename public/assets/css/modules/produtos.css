@@ -1,0 +1,55 @@
+/* CSS para Módulo de Produtos */
+
+.product-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.product-image-mini {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(var(--primary-rgb), 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.product-image-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-image-mini i {
+    font-size: 18px;
+    color: var(--text-muted);
+}
+
+.product-name {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 14px;
+}
+
+.product-code {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.table-responsive {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.premium-table {
+    background: transparent;
+}
+
+.premium-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
