@@ -103,6 +103,7 @@ addCol('cp_companies', 'inactive_since', 'DATE NULL AFTER status');
 addCol('cp_companies', 'subscription_status', 'VARCHAR(50) NULL AFTER status');
 addCol('cp_companies', 'mp_enabled', 'TINYINT(1) DEFAULT 0');
 addCol('cp_companies', 'partner_id', 'INT NULL AFTER plan_id');
+addCol('cp_companies', 'custom_domain', 'VARCHAR(255) NULL AFTER slug');
 addCol('cp_invoices', 'last_reminder_date', 'DATE NULL');
 
 // 3. Multi-Company Support & Tutor Portal

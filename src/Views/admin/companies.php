@@ -118,6 +118,12 @@ function openCompanyModal(data = null) {
                 <small class="text-muted">Acessível em: <?php echo SITE_URL; ?>/sua-slug</small>
             </div>
 
+            <div class="form-group mb-3">
+                <label class="form-label">Domínio Customizado (Opcional)</label>
+                <input type="text" name="custom_domain" class="form-control" value="${data ? data.custom_domain || '' : ''}" placeholder="www.spivet.app">
+                <small class="text-muted">O cliente deve apontar o CNAME para o domínio principal deste sistema.</small>
+            </div>
+
             <div class="form-grid-2 mb-3">
                 <div class="form-group">
                     <label class="form-label">WhatsApp</label>

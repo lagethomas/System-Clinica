@@ -73,6 +73,7 @@ class CompaniesController extends Controller {
         $data = [
             'name' => $_POST['name'] ?? '',
             'slug' => $_POST['slug'] ?? '',
+            'custom_domain' => trim($_POST['custom_domain'] ?? ''),
             'phone' => $_POST['phone'] ?? '',
             'email' => $_POST['email'] ?? '',
             'document' => $_POST['document'] ?? '',

@@ -166,12 +166,12 @@ class CompanyRepository {
         if (isset($data['id']) && $data['id']) {
             $stmt = $this->pdo->prepare("
                 UPDATE cp_companies SET 
-                name = ?, slug = ?, document = ?, phone = ?, email = ?, 
+                name = ?, slug = ?, custom_domain = ?, document = ?, phone = ?, email = ?, 
                 theme_color = ?, theme = ?, active = ?, expires_at = ?, plan_id = ?, partner_id = ?
                 WHERE id = ?
             ");
             $res = $stmt->execute([
-                $data['name'], $data['slug'], $data['document'] ?? null, $data['phone'] ?? null, $data['email'] ?? null,
+                $data['name'], $data['slug'], $data['custom_domain'] ?? null, $data['document'] ?? null, $data['phone'] ?? null, $data['email'] ?? null,
                 $data['theme_color'] ?? 'var(--primary)', $data['theme'] ?? 'default', $data['active'] ?? 1, $data['expires_at'] ?? null, $data['plan_id'] ?? null,
                 $data['partner_id'] ?? null,
                 $data['id']
@@ -194,11 +194,11 @@ class CompanyRepository {
             }
 
             $stmt = $this->pdo->prepare("
-                INSERT INTO cp_companies (name, slug, document, phone, email, theme_color, theme, active, expires_at, plan_id, partner_id) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO cp_companies (name, slug, custom_domain, document, phone, email, theme_color, theme, active, expires_at, plan_id, partner_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             $res = $stmt->execute([
-                $data['name'], $data['slug'], $data['document'] ?? null, $data['phone'] ?? null, $data['email'] ?? null,
+                $data['name'], $data['slug'], $data['custom_domain'] ?? null, $data['document'] ?? null, $data['phone'] ?? null, $data['email'] ?? null,
                 $data['theme_color'] ?? 'var(--primary)', $data['theme'] ?? 'default', $data['active'] ?? 1, $expiresAt, $data['plan_id'] ?? null,
                 $data['partner_id'] ?? null
             ]);
@@ -636,7 +636,7 @@ class CompanyRepository {
             )
             AND (i.last_reminder_date IS NULL OR i.last_reminder_date != ?)
         ");
-        $stmt_ov->execute([$today, $today, $graceDays - 1, $today]);
+        $stmt_ov->execute([$today, $today, $today, $graceDays - 1, $today]);
         $overdue = $stmt_ov->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($overdue as $inv) {

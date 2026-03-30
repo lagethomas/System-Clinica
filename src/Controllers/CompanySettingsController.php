@@ -45,6 +45,7 @@ class CompanySettingsController extends Controller {
             'email' => isset($_POST['email']) ? trim($_POST['email']) : ($company['email'] ?? ''),
             'phone' => isset($_POST['phone']) ? trim($_POST['phone']) : ($company['phone'] ?? ''),
             'document' => isset($_POST['document']) ? trim($_POST['document']) : ($company['document'] ?? ''),
+            'custom_domain' => isset($_POST['custom_domain']) ? trim($_POST['custom_domain']) : ($company['custom_domain'] ?? ''),
             'theme' => $_POST['theme'] ?? ($company['theme'] ?? 'gold-black'),
         ];
 

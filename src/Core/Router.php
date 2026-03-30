@@ -39,6 +39,24 @@ class Router {
         
         $path = '/' . trim($path, '/');
 
+        // --- Custom Domain Detection ---
+        global $pdo;
+        $host = $_SERVER['HTTP_HOST'];
+        $mainHost = parse_url(SITE_URL, PHP_URL_HOST);
+        $companySlug = null;
+        
+        if ($host !== $mainHost) {
+            $stmtD = $pdo->prepare("SELECT slug FROM cp_companies WHERE custom_domain = ? AND active = 1 LIMIT 1");
+            $stmtD->execute([$host]);
+            $companySlug = $stmtD->fetchColumn();
+            
+            if ($companySlug) {
+                // If we are on a custom domain, prepend the slug virtualy
+                // So spivet.app/login becomes /spivet/login
+                $path = '/' . $companySlug . ($path === '/' ? '' : $path);
+            }
+        }
+
         foreach ($this->routes as $route) {
             if ($route['method'] === $method && preg_match($route['pattern'], $path, $matches)) {
                 // Execute Middlewares

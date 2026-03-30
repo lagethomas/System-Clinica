@@ -74,7 +74,15 @@ class Auth {
             }
 
             $slug = $_SESSION['company_slug'] ?? $_COOKIE['last_company_slug'] ?? null;
-            if (!empty($slug)) {
+            
+            // Check if we are on a custom domain (White Label)
+            $host = $_SERVER['HTTP_HOST'];
+            $mainHost = parse_url(SITE_URL, PHP_URL_HOST);
+
+            if ($host !== $mainHost) {
+                // If on custom domain, just go to /login (Router handles it)
+                header("Location: /login");
+            } elseif (!empty($slug)) {
                 header("Location: " . SITE_URL . "/" . $slug . "/login");
             } else {
                 header("Location: " . SITE_URL . "/login");
@@ -110,7 +118,7 @@ class Auth {
                 // Stay on subscriptions page, but block others
                 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                 if (strpos($uri, 'subscriptions') === false && strpos($uri, 'logout') === false) {
-                    header("Location: " . SITE_URL . "/app/subscriptions?blocked=1");
+                    header("Location: /app/subscriptions?blocked=1");
                     exit;
                 }
             }
@@ -123,7 +131,7 @@ class Auth {
     public static function requireRole(string $role): void {
         self::requireLogin();
         if (!self::hasPermission($role)) {
-            header("Location: " . SITE_URL . "/dashboard");
+            header("Location: /dashboard");
             exit;
         }
     }
@@ -201,6 +209,11 @@ class Auth {
     public static function logout(): void {
         $slug = $_SESSION['company_slug'] ?? $_COOKIE['last_company_slug'] ?? null;
         
+        // Check if we are on a custom domain before clearing session
+        $host = $_SERVER['HTTP_HOST'];
+        $mainHost = parse_url(SITE_URL, PHP_URL_HOST);
+        $isOnCustomDomain = ($host !== $mainHost);
+
         session_unset();
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
@@ -212,7 +225,9 @@ class Auth {
         session_destroy();
         
         if (!headers_sent()) {
-            if (!empty($slug)) {
+            if ($isOnCustomDomain) {
+                header("Location: /login");
+            } elseif (!empty($slug)) {
                 header("Location: " . SITE_URL . "/" . $slug . "/login");
             } else {
                 header("Location: " . SITE_URL . "/login");

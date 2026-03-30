@@ -54,7 +54,17 @@ $current_theme = $company['theme'] ?? 'gold-black';
                         <input type="text" name="phone" value="<?php echo htmlspecialchars($company['phone'] ?? ''); ?>" class="form-control mask-phone" placeholder="(00) 00000-0000">
                     </div>
                 </div>
+    </div>
+
+    <div class="form-grid-1 mb-4" style="padding: 0 30px;">
+        <div class="upload-box-wrapper p-3">
+            <label class="upload-label"><i data-lucide="globe" class="icon-lucide"></i> Domínio Customizado (Ex: www.suaclinica.com.br)</label>
+            <div class="form-group mt-2">
+                <input type="text" name="custom_domain" value="<?php echo htmlspecialchars($company['custom_domain'] ?? ''); ?>" class="form-control" placeholder="ex: www.spivet.app">
+                <small class="text-muted" style="display: block; margin-top: 5px;">Para usar seu próprio domínio, crie um apontamento <b>CNAME</b> no seu provedor de DNS para: <b style="color: var(--primary);"><?php echo parse_url(SITE_URL, PHP_URL_HOST); ?></b></small>
             </div>
+        </div>
+    </div>
 
             <div class="form-grid-5 mb-4" style="padding: 0 30px;">
                 <div class="upload-box-wrapper p-3" style="grid-column: span 2;">
