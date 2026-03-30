@@ -79,7 +79,9 @@ class CompaniesController extends Controller {
             'document' => $_POST['document'] ?? '',
             'plan_id' => !empty($_POST['plan_id']) ? (int)$_POST['plan_id'] : null,
             'partner_id' => !empty($_POST['partner_id']) ? (int)$_POST['partner_id'] : null,
-            'theme' => $_POST['theme'] ?? 'default'
+            'theme' => $_POST['theme'] ?? 'default',
+            'expires_at' => !empty($_POST['expires_at']) ? $_POST['expires_at'] : null,
+            'active' => isset($_POST['active']) ? (int)$_POST['active'] : 1
         ];
 
         $owner_id = !empty($_POST['owner_id']) ? (int)$_POST['owner_id'] : null;

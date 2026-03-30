@@ -164,6 +164,8 @@ class CompanyRepository {
      */
     public function save($data) {
         if (isset($data['id']) && $data['id']) {
+            $existing = $this->getById($data['id']);
+            
             $stmt = $this->pdo->prepare("
                 UPDATE cp_companies SET 
                 name = ?, slug = ?, custom_domain = ?, document = ?, phone = ?, email = ?, 
@@ -171,9 +173,18 @@ class CompanyRepository {
                 WHERE id = ?
             ");
             $res = $stmt->execute([
-                $data['name'], $data['slug'], $data['custom_domain'] ?? null, $data['document'] ?? null, $data['phone'] ?? null, $data['email'] ?? null,
-                $data['theme_color'] ?? 'var(--primary)', $data['theme'] ?? 'default', $data['active'] ?? 1, $data['expires_at'] ?? null, $data['plan_id'] ?? null,
-                $data['partner_id'] ?? null,
+                $data['name'], 
+                $data['slug'], 
+                $data['custom_domain'] ?? $existing['custom_domain'] ?? null, 
+                $data['document'] ?? $existing['document'] ?? null, 
+                $data['phone'] ?? $existing['phone'] ?? null, 
+                $data['email'] ?? $existing['email'] ?? null,
+                $data['theme_color'] ?? $existing['theme_color'] ?? 'var(--primary)', 
+                $data['theme'] ?? $existing['theme'] ?? 'default', 
+                isset($data['active']) ? $data['active'] : ($existing['active'] ?? 1), 
+                isset($data['expires_at']) ? $data['expires_at'] : ($existing['expires_at'] ?? null), 
+                $data['plan_id'] ?? $existing['plan_id'] ?? null,
+                $data['partner_id'] ?? $existing['partner_id'] ?? null,
                 $data['id']
             ]);
 

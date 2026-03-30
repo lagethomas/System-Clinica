@@ -86,6 +86,15 @@ class CompanyDetailsController extends Controller {
         ]);
 
         if ($res) {
+            // Self-healing: if company expiration is undefined, set it to this invoice's due date
+            $stmt_check = $pdo->prepare("SELECT expires_at FROM cp_companies WHERE id = ?");
+            $stmt_check->execute([$id]);
+            $current_expiration = $stmt_check->fetchColumn();
+
+            if (empty($current_expiration) && $type === 'recurring') {
+                $pdo->prepare("UPDATE cp_companies SET expires_at = ? WHERE id = ?")->execute([$due_date, $id]);
+            }
+
             $this->jsonResponse(['success' => true, 'message' => 'Fatura gerada com sucesso!']);
         } else {
             $this->jsonResponse(['success' => false, 'message' => 'Erro ao gerar fatura.'], 500);
@@ -159,6 +168,27 @@ class CompanyDetailsController extends Controller {
             $this->jsonResponse(['success' => true, 'message' => 'Data atualizada com sucesso!']);
         } else {
             $this->jsonResponse(['success' => false, 'message' => 'Erro ao atualizar data.'], 500);
+        }
+    }
+
+    public function updateExpiration(): void {
+        Auth::requireAdmin();
+        $id = $_POST['company_id'] ?? null;
+        $date = $_POST['expires_at'] ?? null;
+        
+        if (!$id || !$date) {
+            $this->jsonResponse(['success' => false, 'message' => 'Dados incompletos.'], 400);
+            return;
+        }
+
+        $pdo = Database::getInstance();
+        $stmt = $pdo->prepare("UPDATE cp_companies SET expires_at = ? WHERE id = ?");
+        $res = $stmt->execute([$date, $id]);
+
+        if ($res) {
+            $this->jsonResponse(['success' => true, 'message' => 'Vencimento atualizado com sucesso!']);
+        } else {
+            $this->jsonResponse(['success' => false, 'message' => 'Erro ao atualizar vencimento.'], 500);
         }
     }
 }

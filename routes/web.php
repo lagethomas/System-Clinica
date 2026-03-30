@@ -57,6 +57,7 @@ $router->add('POST', '/api/admin/invoices/generate', ['controller' => 'Admin\\Co
 $router->add('POST', '/api/admin/invoices/delete', ['controller' => 'Admin\\CompanyDetailsController', 'method' => 'deleteInvoice', 'middlewares' => [$auth, $admin]]);
 $router->add('POST', '/api/admin/invoices/pay', ['controller' => 'Admin\\CompanyDetailsController', 'method' => 'payInvoice', 'middlewares' => [$auth, $admin]]);
 $router->add('POST', '/api/admin/invoices/update-date', ['controller' => 'Admin\\CompanyDetailsController', 'method' => 'updateDate', 'middlewares' => [$auth, $admin]]);
+$router->add('POST', '/api/admin/companies/update-expiration', ['controller' => 'Admin\\CompanyDetailsController', 'method' => 'updateExpiration', 'middlewares' => [$auth, $admin]]);
 
 $router->add('GET', '/admin/financeiro', ['controller' => 'Admin\\FinancialController', 'method' => 'index', 'middlewares' => [$auth, $admin]]);
 $router->add('GET', '/admin/subscriptions', ['controller' => 'Admin\\SubscriptionsController', 'method' => 'index', 'middlewares' => [$auth, $admin]]);

@@ -52,7 +52,16 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px; color: var(--text-main);">
                     <i data-lucide="calendar-check" class="icon-lucide"></i>
-                    <span>Vencimento: <strong style="color: var(--primary);"><?php echo $company['expires_at'] ? date('d/m/Y', strtotime($company['expires_at'])) : 'Indefinido'; ?></strong></span>
+                    <span>Vencimento: 
+                        <strong id="company-expires-display" style="color: var(--primary); cursor: pointer; border-bottom: 1px dotted var(--primary);" onclick="editCompanyExpires()">
+                            <?php echo $company['expires_at'] ? date('d/m/Y', strtotime($company['expires_at'])) : 'Indefinido'; ?>
+                        </strong>
+                        <div id="company-expires-edit" style="display: none; align-items: center; gap: 5px; margin-top: 5px;">
+                            <input type="date" id="company-expires-input" value="<?php echo $company['expires_at'] ? date('Y-m-d', strtotime($company['expires_at'])) : ''; ?>" style="padding: 2px 5px; border-radius: 5px; background: #1a1c23; border: 1px solid var(--border); color: white; font-size: 13px;">
+                            <button onclick="saveCompanyExpires()" style="background: var(--primary); border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; color: black; font-size: 10px;"><i data-lucide="check" class="icon-lucide"></i></button>
+                            <button onclick="cancelEditCompanyExpires()" style="background: rgba(255,255,255,0.05); border: none; border-radius: 4px; padding: 2px 6px; cursor: pointer; color: white; font-size: 10px;"><i data-lucide="x" class="icon-lucide"></i></button>
+                        </div>
+                    </span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px; color: var(--text-main);">
                     <i data-lucide="circle" style="width: 12px; height: 12px; fill: <?php echo $company['active'] ? '#22c55e' : '#ef4444'; ?>; stroke: none;"></i>
@@ -176,6 +185,38 @@
 </div>
 
 <script>
+function editCompanyExpires() {
+    document.getElementById('company-expires-display').style.display = 'none';
+    document.getElementById('company-expires-edit').style.display = 'flex';
+}
+
+function cancelEditCompanyExpires() {
+    document.getElementById('company-expires-display').style.display = 'inline';
+    document.getElementById('company-expires-edit').style.display = 'none';
+}
+
+async function saveCompanyExpires() {
+    const newDate = document.getElementById('company-expires-input').value;
+    if (!newDate) return;
+
+    try {
+        const response = await fetch('<?php echo SITE_URL; ?>/api/admin/companies/update-expiration', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `company_id=<?php echo $company['id']; ?>&expires_at=${newDate}`
+        });
+        const data = await response.json();
+        if (data.success) {
+            UI.showToast('Vencimento atualizado!');
+            window.location.reload();
+        } else {
+            UI.showToast(data.message || 'Erro ao atualizar', 'error');
+        }
+    } catch (e) {
+        UI.showToast('Erro de conexão', 'error');
+    }
+}
+
 async function markAsPaid(id) {
     if (await UI.confirm('Deseja marcar esta fatura como paga manualmente?', {
         title: 'Baixa de Fatura',

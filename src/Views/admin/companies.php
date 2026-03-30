@@ -135,14 +135,15 @@ function openCompanyModal(data = null) {
                 </div>
             </div>
 
-            <div class="form-grid-2 mb-3">
-                <div class="form-group">
-                    <label class="form-label">Proprietário (Responsável)</label>
-                    <select name="owner_id" class="form-control" required>
-                        <option value="">-- Selecione o Proprietário --</option>
-                        ${(<?php echo json_encode($owners); ?>).map(u => `<option value="${u.id}" ${u.company_id == data?.id || (data && data.master_manager_id == u.id) ? 'selected' : ''}>${u.name}</option>`).join('')}
-                    </select>
-                </div>
+            <div class="form-group mb-3">
+                <label class="form-label">Proprietário (Responsável)</label>
+                <select name="owner_id" class="form-control" required>
+                    <option value="">-- Selecione o Proprietário --</option>
+                    ${(<?php echo json_encode($owners); ?>).map(u => `<option value="${u.id}" ${u.company_id == data?.id || (data && data.master_manager_id == u.id) ? 'selected' : ''}>${u.name}</option>`).join('')}
+                </select>
+            </div>
+
+            <div class="form-grid-3 mb-3">
                 <div class="form-group">
                     <label class="form-label">Plano Associado</label>
                     <select name="plan_id" class="form-control" required>
@@ -150,10 +151,21 @@ function openCompanyModal(data = null) {
                         ${planOptions}
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Vencimento do Acesso</label>
+                    <input type="date" name="expires_at" class="form-control" value="${data ? (data.expires_at ? data.expires_at.split(' ')[0] : '') : ''}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select name="active" class="form-control">
+                        <option value="1" ${!data || data.active == 1 ? 'selected' : ''}>Ativo</option>
+                        <option value="0" ${data && data.active == 0 ? 'selected' : ''}>Suspenso</option>
+                    </select>
+                </div>
             </div>
 
             <div class="alert alert-info" style="font-size: 11px; padding: 10px; margin-bottom: 20px;">
-                <i data-lucide="info" class="icon-lucide"></i> O primeiro vencimento e as faturas (Trial + Mensalidade) serão geradas automaticamente com base nas regras do plano selecionado.
+                <i data-lucide="info" class="icon-lucide"></i> O primeiro vencimento e as faturas (Trial + Mensalidade) serão geradas automaticamente ao criar uma nova empresa. Para empresas existentes, a renovação ocorre ao dar baixa na fatura recorrente.
             </div>
 
             <div class="modal-footer">
