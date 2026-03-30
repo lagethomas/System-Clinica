@@ -267,6 +267,26 @@ function suggestUsername() {
     usernameInput.value = suggestion;
 }
 
+async function deleteTutor(id) {
+    if (await UI.confirm('Tem certeza que deseja excluir este cliente? Isso também removerá o acesso dele ao portal.', 'danger')) {
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('nonce', '<?php echo $nonce_delete; ?>');
+
+        const res = await fetch('<?php echo SITE_URL; ?>/api/tutores/delete', {
+            method: 'POST',
+            body: formData
+        }).then(r => r.json());
+
+        if (res.success) {
+            UI.showToast('Cliente removido com sucesso!');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            UI.showToast(res.message || 'Erro ao remover cliente', 'error');
+        }
+    }
+}
+
 // Marcar como manual se o usuário editar o campo
 document.addEventListener('input', (e) => {
     if (e.target.id === 'tutor-username') {

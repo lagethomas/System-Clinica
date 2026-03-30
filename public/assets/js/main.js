@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isCollapsed && sidebar) {
         sidebar.classList.add('collapsed');
         document.body.classList.add('sidebar-collapsed');
+        const icon = document.querySelector('.sidebar-collapse-toggle i');
+        if (icon) {
+            icon.setAttribute('data-lucide', 'chevrons-right');
+            // Ensure icons are correctly sized
+            icon.classList.add('icon-sm');
+        }
     }
 
     // 2. Initializers
@@ -57,10 +63,14 @@ function toggleSidebarCollapse() {
     localStorage.setItem('sidebar-collapsed', isCollapsed);
     
     // Update icons
-    const toggleBtn = document.querySelector('.sidebar-collapse-toggle i');
+    const toggleBtn = document.querySelector('.sidebar-collapse-toggle');
     if (toggleBtn) {
-        toggleBtn.setAttribute('data-lucide', isCollapsed ? 'panel-left-open' : 'panel-left-close');
-        if (window.lucide) lucide.createIcons();
+        toggleBtn.innerHTML = `<i data-lucide="${isCollapsed ? 'chevrons-right' : 'chevrons-left'}" class="icon-lucide icon-sm"></i>`;
+        if (window.lucide) {
+            lucide.createIcons({
+                root: toggleBtn
+            });
+        }
     }
 }
 

@@ -190,6 +190,14 @@ class UsersController extends Controller {
                 \ImageHelper::safeDelete($user['avatar'], $uploadDir);
             }
 
+            // Cascade delete: if this user is a tutor, delete the tutor entry as well
+            if (!empty($user['tutor_id'])) {
+                \App\Core\Database::query("DELETE FROM cp_tutores WHERE id = :tid AND company_id = :cid", [
+                    'tid' => $user['tutor_id'], 
+                    'cid' => $user['company_id']
+                ]);
+            }
+
             $userRepo->delete($id);
 
             // Recalculate billing

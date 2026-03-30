@@ -46,9 +46,13 @@ $primaryRGB = hex2rgb_auth($primaryColor);
             --primary-rgb: <?php echo $primaryRGB; ?> !important;
             <?php endif; ?>
         }
+        <?php 
+            $isLight = strpos($theme_slug, 'light') !== false;
+            $overlay = $isLight ? "rgba(249, 250, 251, 0.85), rgba(249, 250, 251, 0.95)" : "rgba(10, 12, 16, 0.8), rgba(10, 12, 16, 0.9)";
+        ?>
         <?php if ($bgImage): ?>
         body.auth-wrapper {
-            background: linear-gradient(rgba(10, 12, 16, 0.8), rgba(10, 12, 16, 0.9)), url('<?php echo $bgImage; ?>') center/cover no-repeat fixed !important;
+            background: linear-gradient(<?php echo $overlay; ?>), url('<?php echo $bgImage; ?>') center/cover no-repeat fixed !important;
         }
         <?php endif; ?>
     </style>

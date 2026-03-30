@@ -153,7 +153,15 @@ class LoginController extends Controller {
         global $platform_settings;
         $settings = array_merge($platform_settings ?? [], $settings);
         $system_name  = $company ? $company['name'] : htmlspecialchars($settings['system_name'] ?? 'SaaSFlow Core');
-        $theme_slug   = htmlspecialchars($settings['system_theme'] ?? 'gold-black');
+        
+        // Prioritize company theme if available
+        $theme_slug = 'gold-black';
+        if ($company && !empty($company['theme'])) {
+            $theme_slug = $company['theme'];
+        } else {
+            $theme_slug = $settings['system_theme'] ?? 'gold-black';
+        }
+        $theme_slug = htmlspecialchars($theme_slug);
         $csrf_token   = \CSRF::generateToken();
         $v            = (string)time();
 

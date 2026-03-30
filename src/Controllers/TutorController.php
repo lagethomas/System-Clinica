@@ -201,8 +201,13 @@ class TutorController extends Controller {
 
         $id = $_POST['id'] ?? null;
         if ($id) {
+            // Cascade delete: Remove associated user if exists
+            Database::query("DELETE FROM cp_users WHERE tutor_id = :tid AND company_id = :cid", ['tid' => $id, 'cid' => $company_id]);
+            
+            // Delete the tutor itself
             Database::query("DELETE FROM cp_tutores WHERE id = :id AND company_id = :cid", ['id' => $id, 'cid' => $company_id]);
-            Logger::log('tutor_delete', "Removeu tutor ID #$id");
+            
+            Logger::log('tutor_delete', "Removeu tutor ID #$id e seu usuário de acesso.");
             $this->jsonResponse(['success' => true]);
         }
     }

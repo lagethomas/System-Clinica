@@ -181,9 +181,6 @@ $unread_count = count($unread_notifications);
                     </div>
                     <span><?php echo htmlspecialchars($system_name); ?></span>
                 </a>
-                <button class="sidebar-collapse-toggle" onclick="toggleSidebarCollapse()" title="Alternar Menu">
-                    <i data-lucide="<?php echo ($isCollapsed ?? false) ? 'panel-left-open' : 'panel-left-close'; ?>" class="icon-lucide icon-sm"></i>
-                </button>
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -391,8 +388,11 @@ $unread_count = count($unread_notifications);
         <main class="main-content">
             <header class="top-bar">
                 <div class="top-bar-left">
-                    <button class="menu-toggle" onclick="toggleSidebar()">
+                    <button class="menu-toggle mobile-only" onclick="toggleSidebar()">
                         <i data-lucide="menu" class="icon-lucide"></i>
+                    </button>
+                    <button class="sidebar-collapse-toggle desktop-only" onclick="toggleSidebarCollapse()" title="Alternar Menu">
+                        <i data-lucide="<?php echo ($isCollapsed ?? false) ? 'chevrons-right' : 'chevrons-left'; ?>" class="icon-lucide icon-sm"></i>
                     </button>
                     <h2 class="page-title"><?php echo $page_titles[$current_page] ?? 'Início'; ?></h2>
                 </div>

@@ -1,8 +1,10 @@
 /* Premium Auth Module CSS */
 :root {
-    --bg-auth: #0a0c10;
-    --auth-card-bg: #111418;
-    --auth-border: rgba(255, 255, 255, 0.08);
+    --bg-auth: var(--bg-dark, #0a0c10);
+    --auth-card-bg: var(--bg-surface, #111418);
+    --auth-border: var(--border, rgba(255, 255, 255, 0.08));
+    --auth-text: var(--text-main, #ffffff);
+    --auth-text-muted: var(--text-muted, #94a3b8);
 }
 
 body.auth-wrapper {
@@ -13,7 +15,7 @@ body.auth-wrapper {
     min-height: 100vh;
     margin: 0;
     font-family: 'Outfit', sans-serif;
-    color: #fff;
+    color: var(--auth-text);
 }
 
 .auth-card {
@@ -23,7 +25,7 @@ body.auth-wrapper {
     padding: 40px;
     width: 100%;
     max-width: 420px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
     z-index: 10;
     position: relative;
     overflow: hidden;
@@ -62,12 +64,12 @@ body.auth-wrapper {
 .auth-title {
     font-size: 26px;
     font-weight: 800;
-    color: #fff;
+    color: var(--auth-text);
     margin: 0;
 }
 
 .auth-subtitle {
-    color: #94a3b8;
+    color: var(--auth-text-muted);
     font-size: 14px;
     margin-top: 8px;
 }
@@ -80,17 +82,17 @@ body.auth-wrapper {
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: #94a3b8;
+    color: var(--auth-text-muted);
     margin-bottom: 8px;
 }
 
 .form-control {
     width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-auth);
+    border: 1px solid var(--auth-border);
     border-radius: 12px;
     padding: 12px 16px;
-    color: #fff;
+    color: var(--auth-text);
     font-family: inherit;
     transition: 0.3s;
 }
@@ -105,7 +107,7 @@ body.auth-wrapper {
 .btn-auth-submit {
     width: 100%;
     background: var(--primary, #d4af37);
-    color: #000;
+    color: var(--text-on-primary, #000);
     border: none;
     padding: 14px;
     border-radius: 12px;
@@ -207,5 +209,5 @@ body.auth-wrapper {
 }
 
 .auth-footer a:hover {
-    color: #fff;
+    color: var(--auth-text);
 }
