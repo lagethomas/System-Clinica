@@ -114,6 +114,17 @@ foreach ($tablesToIsolation as $tbl) {
 }
 
 // 4. Específicos do Módulo Clínica v2.4.0
+safeExec("CREATE TABLE IF NOT EXISTS `cp_planos_pet` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `company_id` INT NOT NULL,
+  `pet_id` INT NOT NULL,
+  `numero_carteirinha` VARCHAR(100) DEFAULT NULL,
+  `status` ENUM('ativo', 'inativo', 'cancelado') DEFAULT 'ativo',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_company` (`company_id`),
+  INDEX `idx_pet` (`pet_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_planos_pet");
+
 addCol('cp_users', 'tutor_id', 'INT NULL AFTER company_id');
 addCol('cp_users', 'active', 'TINYINT(1) DEFAULT 1 AFTER state');
 addIndex('cp_users', 'idx_users_tutor', 'tutor_id');

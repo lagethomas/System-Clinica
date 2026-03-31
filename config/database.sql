@@ -219,6 +219,20 @@ CREATE TABLE IF NOT EXISTS `cp_pets` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
+-- Table structure for cp_planos_pet (Health Plans)
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `cp_planos_pet` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `company_id` INT NOT NULL,
+  `pet_id` INT NOT NULL,
+  `numero_carteirinha` VARCHAR(100) DEFAULT NULL,
+  `status` ENUM('ativo', 'inativo', 'cancelado') DEFAULT 'ativo',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_company` (`company_id`),
+  INDEX `idx_pet` (`pet_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
 -- Table structure for cp_consultas
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `cp_consultas` (
@@ -245,6 +259,8 @@ ALTER TABLE `cp_users` ADD FOREIGN KEY (`tutor_id`) REFERENCES `cp_tutores`(`id`
 ALTER TABLE `cp_financeiro` ADD FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE;
 ALTER TABLE `cp_pets` ADD FOREIGN KEY (`tutor_id`) REFERENCES `cp_tutores`(`id`) ON DELETE CASCADE;
 ALTER TABLE `cp_consultas` ADD FOREIGN KEY (`pet_id`) REFERENCES `cp_pets`(`id`) ON DELETE CASCADE;
+ALTER TABLE `cp_planos_pet` ADD FOREIGN KEY (`pet_id`) REFERENCES `cp_pets`(`id`) ON DELETE CASCADE;
+ALTER TABLE `cp_planos_pet` ADD FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE;
 
 -- ----------------------------
 -- Initial Data (Base)
