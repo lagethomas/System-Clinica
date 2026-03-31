@@ -35,7 +35,7 @@
 .pagination-btn.active {
     background: var(--primary);
     border-color: var(--primary);
-    color: #000;
+    color: var(--text-color);
     font-weight: 700;
     box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
 }
