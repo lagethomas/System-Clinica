@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use App\Helpers\Logger;
 use Auth;
 use PDO;
@@ -18,17 +19,30 @@ class UsersController extends Controller {
         require_once __DIR__ . '/../../../includes/repositories/UserRepository.php';
         global $pdo;
         
+        // Count total users for pagination
+        $countSql = "SELECT COUNT(*) as total FROM cp_users u";
+        $countParams = [];
+        if ($company_id) {
+            $countSql .= " WHERE u.company_id = :cid";
+            $countParams['cid'] = $company_id;
+        }
+        $totalItems = (int)\App\Core\Database::fetch($countSql, $countParams)['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
         // Fetch users with company name, filtered by company if not admin
         $sql = "SELECT u.*, c.name as company_name FROM cp_users u LEFT JOIN cp_companies c ON u.company_id = c.id";
-        $params = [];
         if ($company_id) {
             $sql .= " WHERE u.company_id = :cid";
-            $params['cid'] = $company_id;
         }
-        $sql .= " ORDER BY u.name ASC";
+        $sql .= " ORDER BY u.name ASC LIMIT :limit OFFSET :offset";
         
         $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        if ($company_id) {
+            $stmt->bindValue(':cid', $company_id, PDO::PARAM_INT);
+        }
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
         $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Fetch companies for the dropdown (only for global admins)
@@ -41,6 +55,7 @@ class UsersController extends Controller {
         $this->render('admin/users', [
             'all_users' => $users,
             'companies' => $companies,
+            'pagination' => $pagination,
             'nonces' => [
                 'save' => Nonce::create('save_user'),
                 'delete' => Nonce::create('delete_user')

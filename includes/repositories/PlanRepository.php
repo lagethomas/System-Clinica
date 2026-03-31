@@ -8,11 +8,16 @@ class PlanRepository {
     }
 
     /**
-     * Get all plans
+     * Get all plans with pagination
      */
-    public function getAll() {
-        $stmt = $this->pdo->query("SELECT * FROM cp_plans ORDER BY name ASC");
+    public function getAll(int $limit = 100, int $offset = 0) {
+        $stmt = $this->pdo->prepare("SELECT * FROM cp_plans ORDER BY name ASC LIMIT ? OFFSET ?");
+        $stmt->execute([$limit, $offset]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function countAll(): int {
+        return (int)$this->pdo->query("SELECT COUNT(*) FROM cp_plans")->fetchColumn();
     }
 
     /**

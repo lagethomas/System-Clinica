@@ -76,6 +76,7 @@
             </tbody>
         </table>
     </div>
+    <?php echo \App\Core\Pagination::render($pagination['page'], $pagination['totalPages'], SITE_URL . '/users'); ?>
 </div>
 
 <script>

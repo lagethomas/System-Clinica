@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use Auth;
 use PDO;
 
@@ -22,11 +23,12 @@ class FinancialController extends Controller {
         $monthly_revenue = \App\Core\Database::fetchAll("
             SELECT 
                 DATE_FORMAT(paid_at, '%m/%Y') as month,
-                SUM(amount) as total
+                SUM(amount) as total,
+                MIN(paid_at) as first_paid
             FROM cp_invoices 
             WHERE status = 'paid' AND paid_at IS NOT NULL
             GROUP BY month
-            ORDER BY paid_at DESC
+            ORDER BY first_paid DESC
             LIMIT 6
         ");
         // Reverse to show chronological
@@ -46,22 +48,30 @@ class FinancialController extends Controller {
             LIMIT 10
         ");
 
-        // 5. Recent Subscriptions activity
-        $recent_sales = \App\Core\Database::fetchAll("
+        // 5. Recent Subscriptions activity with pagination
+        $totalItems = (int)\App\Core\Database::fetch("SELECT COUNT(*) as total FROM cp_invoices WHERE status = 'paid'")['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
+        $stmt = $pdo->prepare("
             SELECT i.*, c.name as company_name
             FROM cp_invoices i
             JOIN cp_companies c ON i.company_id = c.id
             WHERE i.status = 'paid'
             ORDER BY i.paid_at DESC
-            LIMIT 15
+            LIMIT :limit OFFSET :offset
         ");
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
+        $recent_sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $this->render('admin/financial', [
             'total_paid' => (float)$total_paid,
             'total_pending' => (float)$total_pending,
             'monthly_revenue' => $monthly_revenue,
             'top_companies' => $top_companies,
-            'recent_sales' => $recent_sales
+            'recent_sales' => $recent_sales,
+            'pagination' => $pagination
         ]);
     }
 }

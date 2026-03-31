@@ -5,6 +5,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Controller;
 use Auth;
+use App\Core\Pagination;
 use CompanyRepository;
 use PlanRepository;
 use Nonce;
@@ -24,7 +25,10 @@ class CompaniesController extends Controller {
         
         $companyRepo->checkAutoBilling();
         $companyRepo->sendInvoiceReminders();
-        // Lógica para puxar as empresas (adaptada para o MVC)
+
+        $totalItems = (int)\App\Core\Database::fetch("SELECT COUNT(*) as total FROM cp_companies")['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
         $stmt = $pdo->prepare("
             SELECT c.*, 
             (SELECT name FROM cp_users WHERE company_id = c.id AND role = 'proprietario' ORDER BY id ASC LIMIT 1) as master_manager,
@@ -35,7 +39,10 @@ class CompaniesController extends Controller {
             LEFT JOIN cp_plans p ON c.plan_id = p.id
             LEFT JOIN cp_users u_part ON c.partner_id = u_part.id
             ORDER BY c.name ASC
+            LIMIT :limit OFFSET :offset
         ");
+        $stmt->bindValue(':limit', $pagination['limit'], \PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], \PDO::PARAM_INT);
         $stmt->execute();
         $companies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -54,6 +61,7 @@ class CompaniesController extends Controller {
             'plans' => $plans,
             'partners' => $partners,
             'owners' => $owners,
+            'pagination' => $pagination,
             'nonces' => [
                 'save' => Nonce::create('save_company'),
                 'delete' => Nonce::create('delete_company')

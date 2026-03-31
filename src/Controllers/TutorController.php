@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use App\Core\Database;
 use App\Helpers\Logger;
 use Auth;
+use PDO;
 
 class TutorController extends Controller {
 
@@ -25,12 +27,25 @@ class TutorController extends Controller {
             $params['s3'] = "%$search%";
         }
 
-        $tutores = Database::fetchAll("SELECT * FROM cp_tutores $where ORDER BY nome ASC", $params);
+        // Count total for pagination
+        $totalItems = (int)Database::fetch("SELECT COUNT(*) as total FROM cp_tutores $where", $params)['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
+        $sql = "SELECT * FROM cp_tutores $where ORDER BY nome ASC LIMIT :limit OFFSET :offset";
+        $stmt = Database::getInstance()->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue(':' . $key, $val);
+        }
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
+        $tutores = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $this->render('app/tutores', [
             'title' => 'Clientes (Tutores)',
             'tutores' => $tutores,
             'search' => $search,
+            'pagination' => $pagination,
             'nonce_save' => \Nonce::create('tutor_save'),
             'nonce_delete' => \Nonce::create('tutor_delete')
         ]);

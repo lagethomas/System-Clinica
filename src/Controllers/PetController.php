@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use App\Core\Database;
 use App\Helpers\Logger;
 use Auth;
+use PDO;
 
 class PetController extends Controller {
 
@@ -25,14 +27,31 @@ class PetController extends Controller {
             $params['s3'] = "%$search%";
         }
 
+        // Count total for pagination
+        $countSql = "SELECT COUNT(*) as total 
+                     FROM cp_pets p 
+                     JOIN cp_tutores t ON p.tutor_id = t.id 
+                     LEFT JOIN cp_planos_pet pl ON p.id = pl.pet_id 
+                     $where";
+        $totalItems = (int)Database::fetch($countSql, $params)['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
         $sql = "SELECT p.*, t.nome as tutor_nome, pl.numero_carteirinha, pl.status as plano_status 
                 FROM cp_pets p 
                 JOIN cp_tutores t ON p.tutor_id = t.id 
                 LEFT JOIN cp_planos_pet pl ON p.id = pl.pet_id 
                 $where 
-                ORDER BY p.nome ASC";
+                ORDER BY p.nome ASC
+                LIMIT :limit OFFSET :offset";
 
-        $pets = Database::fetchAll($sql, $params);
+        $stmt = Database::getInstance()->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue(':' . $key, $val);
+        }
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
+        $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $tutores = Database::fetchAll("SELECT id, nome FROM cp_tutores WHERE company_id = :cid ORDER BY nome ASC", ['cid' => $company_id]);
 
         $this->render('app/pets', [
@@ -40,6 +59,7 @@ class PetController extends Controller {
             'pets' => $pets,
             'tutores' => $tutores,
             'search' => $search,
+            'pagination' => $pagination,
             'nonce_save' => \Nonce::create('pet_save'),
             'nonce_delete' => \Nonce::create('pet_delete')
         ]);

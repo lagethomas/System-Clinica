@@ -123,6 +123,12 @@ $saidas = array_column($chartData, 'saida');
                 </tbody>
             </table>
         </div>
+        <div style="padding: 15px 20px;">
+            <?php 
+                $baseUrl = SITE_URL . '/app/financeiro?start_date=' . ($filters['start_date'] ?? '') . '&end_date=' . ($filters['end_date'] ?? '');
+                echo \App\Core\Pagination::render($pagination['page'], $pagination['totalPages'], $baseUrl); 
+            ?>
+        </div>
     </div>
 </div>
 

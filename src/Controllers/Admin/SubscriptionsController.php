@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use Auth;
 use Nonce;
 use PDO;
@@ -14,13 +15,20 @@ class SubscriptionsController extends Controller {
         Auth::requireAdmin();
         global $pdo;
         
+        $totalItems = (int)\App\Core\Database::fetch("SELECT COUNT(*) as total FROM cp_invoices")['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
         // Exibir Faturas / Assinaturas de todas as empresas
-        $stmt = $pdo->query("
+        $stmt = $pdo->prepare("
             SELECT i.*, c.name as company_name, c.slug, c.email
             FROM cp_invoices i
             JOIN cp_companies c ON i.company_id = c.id
             ORDER BY i.due_date DESC, i.id DESC
+            LIMIT :limit OFFSET :offset
         ");
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
         $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Fetch companies for manual invoice select
@@ -30,6 +38,7 @@ class SubscriptionsController extends Controller {
         $this->render('admin/subscriptions', [
             'invoices' => $invoices,
             'companies' => $companies,
+            'pagination' => $pagination,
             'nonces' => [
                 'generate' => Nonce::create('generate_manual_invoice')
             ]

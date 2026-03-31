@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use App\Core\Database;
 use App\Helpers\Logger;
 use Auth;
+use PDO;
 
 class FinanceiroController extends Controller {
     
@@ -25,7 +27,19 @@ class FinanceiroController extends Controller {
             $params['cid'] = $company_id;
         }
 
-        $movimentacoes = Database::fetchAll("SELECT * FROM cp_financeiro $where ORDER BY data_movimentacao DESC LIMIT 200", $params);
+        // Count total for pagination
+        $totalItems = (int)Database::fetch("SELECT COUNT(*) as total FROM cp_financeiro $where", $params)['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
+        $sql = "SELECT * FROM cp_financeiro $where ORDER BY data_movimentacao DESC LIMIT :limit OFFSET :offset";
+        $stmt = Database::getInstance()->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue(':' . $key, $val);
+        }
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
+        $movimentacoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Calcular resumo (com base no filtro)
         $res_entradas = Database::fetch("SELECT SUM(valor) as total FROM cp_financeiro $where AND tipo = 'entrada'", $params);
@@ -73,6 +87,7 @@ class FinanceiroController extends Controller {
                 'saldo' => (float)$saldo
             ],
             'chartData' => $chartData,
+            'pagination' => $pagination,
             'tutores' => Database::fetchAll("SELECT id, nome FROM cp_tutores WHERE company_id = :cid ORDER BY nome ASC", ['cid' => $company_id]),
             'nonce_add' => \Nonce::create('financeiro_add'),
             'nonce_delete' => \Nonce::create('financeiro_delete'),

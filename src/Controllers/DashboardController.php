@@ -53,6 +53,8 @@ class DashboardController extends Controller {
                 $vet_stats['total_tutores'] = \App\Core\Database::fetch("SELECT COUNT(*) as total FROM cp_tutores WHERE company_id = :cid", ['cid' => $cid])['total'] ?? 0;
                 $vet_stats['today_consultas'] = \App\Core\Database::fetch("SELECT COUNT(*) as total FROM cp_consultas WHERE company_id = :cid AND DATE(data_consulta) = CURDATE()", ['cid' => $cid])['total'] ?? 0;
                 
+                $vet_stats['monthly_appointments'] = \App\Core\Database::fetch("SELECT COUNT(*) as total FROM cp_consultas WHERE company_id = :cid AND MONTH(data_consulta) = MONTH(CURDATE()) AND YEAR(data_consulta) = YEAR(CURDATE())", ['cid' => $cid])['total'] ?? 0;
+                
                 // Company details
                 $vet_stats['company'] = \App\Core\Database::fetch("SELECT * FROM cp_companies WHERE id = :cid", ['cid' => $cid]) ?: [];
 
@@ -60,12 +62,15 @@ class DashboardController extends Controller {
                 $vet_stats['species_distribution'] = \App\Core\Database::fetchAll("SELECT especie, COUNT(*) as total FROM cp_pets WHERE company_id = :cid GROUP BY especie ORDER BY total DESC", ['cid' => $cid]);
                 $vet_stats['recent_appointments'] = \App\Core\Database::fetchAll("SELECT c.*, p.nome as pet_nome FROM cp_consultas c JOIN cp_pets p ON c.pet_id = p.id WHERE c.company_id = :cid ORDER BY c.data_consulta DESC LIMIT 5", ['cid' => $cid]);
 
+                // Monthly Revenue
+                $monthly_revenue = \App\Core\Database::fetch("SELECT SUM(valor) as total FROM cp_financeiro WHERE company_id = :cid AND tipo = 'entrada' AND MONTH(data_movimentacao) = MONTH(CURDATE()) AND YEAR(data_movimentacao) = YEAR(CURDATE())", ['cid' => $cid])['total'] ?? 0;
+
                 // Stats for the generic row
                 $summary_stats = [
                     ['label' => 'Pets Sob Cuidado', 'value' => $vet_stats['total_pets'], 'icon' => 'dog', 'color' => 'orange', 'link' => '/app/pets'],
                     ['label' => 'Consultas Hoje', 'value' => $vet_stats['today_consultas'], 'icon' => 'calendar-check', 'color' => 'green', 'link' => '/app/consultas'],
                     ['label' => 'Tutores Cadastrados', 'value' => $vet_stats['total_tutores'], 'icon' => 'users', 'color' => 'blue', 'link' => '/app/tutores'],
-                    ['label' => 'Atividade Mensal', 'value' => $total_logs, 'icon' => 'activity', 'color' => 'pink', 'link' => '/admin/logs'],
+                    ['label' => 'Faturamento Mensal', 'value' => 'R$ ' . number_format((float)$monthly_revenue, 2, ',', '.'), 'icon' => 'dollar-sign', 'color' => 'pink', 'link' => '/app/financeiro'],
                 ];
             }
         } catch (\Exception $e) {

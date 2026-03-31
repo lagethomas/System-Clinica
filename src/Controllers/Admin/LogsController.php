@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use Auth;
 use LogRepository;
 
@@ -25,13 +26,16 @@ class LogsController extends Controller {
             'action' => $action_filter
         ];
 
-        $logs = $logRepo->getAll($filters, 500);
+        $totalItems = $logRepo->countAll($filters);
+        $pagination = Pagination::getParams($totalItems, 25);
+        $logs = $logRepo->getAll($filters, $pagination['limit'], $pagination['offset']);
 
         $this->render('admin/logs', [
             'logs' => $logs,
             'start_date' => $start_date,
             'end_date' => $end_date,
-            'action_filter' => $action_filter
+            'action_filter' => $action_filter,
+            'pagination' => $pagination
         ]);
     }
 }

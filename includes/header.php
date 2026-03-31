@@ -149,6 +149,7 @@ $unread_count = count($unread_notifications);
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/dashboard-stats.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/switches.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/badges.css'); ?>">
+    <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/pagination.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/global-search.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/floating-autocomplete.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/app-premium.css'); ?>">

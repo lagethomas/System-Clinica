@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use App\Core\Database;
 use App\Helpers\Logger;
 use Auth;
+use PDO;
 
 class ConsultaController extends Controller {
 
@@ -24,14 +26,31 @@ class ConsultaController extends Controller {
             $params['s2'] = "%$search%";
         }
 
+        // Count total for pagination
+        $countSql = "SELECT COUNT(*) as total 
+                     FROM cp_consultas c 
+                     JOIN cp_pets p ON c.pet_id = p.id 
+                     JOIN cp_tutores t ON p.tutor_id = t.id 
+                     $where";
+        $totalItems = (int)Database::fetch($countSql, $params)['total'];
+        $pagination = Pagination::getParams($totalItems, 25);
+
         $sql = "SELECT c.*, p.nome as pet_nome, t.nome as tutor_nome 
                 FROM cp_consultas c 
                 JOIN cp_pets p ON c.pet_id = p.id 
                 JOIN cp_tutores t ON p.tutor_id = t.id 
                 $where 
-                ORDER BY c.data_consulta DESC";
+                ORDER BY c.data_consulta DESC
+                LIMIT :limit OFFSET :offset";
 
-        $consultas = Database::fetchAll($sql, $params);
+        $stmt = Database::getInstance()->prepare($sql);
+        foreach ($params as $key => $val) {
+            $stmt->bindValue(':' . $key, $val);
+        }
+        $stmt->bindValue(':limit', $pagination['limit'], PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $pagination['offset'], PDO::PARAM_INT);
+        $stmt->execute();
+        $consultas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $pets = Database::fetchAll("SELECT p.id, p.nome, t.nome as tutor_nome FROM cp_pets p JOIN cp_tutores t ON p.tutor_id = t.id WHERE p.company_id = :cid ORDER BY p.nome ASC", ['cid' => $company_id]);
 
         $this->render('app/consultas', [
@@ -39,6 +58,7 @@ class ConsultaController extends Controller {
             'consultas' => $consultas,
             'pets' => $pets,
             'search' => $search,
+            'pagination' => $pagination,
             'nonce_save' => \Nonce::create('consulta_save'),
             'nonce_delete' => \Nonce::create('consulta_delete')
         ]);

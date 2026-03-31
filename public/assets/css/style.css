@@ -444,6 +444,12 @@ body {
     margin: 0;
 }
 
+@media (max-width: 768px) {
+    .top-bar .page-title {
+        display: none !important;
+    }
+}
+
 .user-avatar {
     width: 42px;
     height: 42px;

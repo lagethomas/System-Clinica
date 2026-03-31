@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Admin;
 
 use App\Core\Controller;
+use App\Core\Pagination;
 use Auth;
 use PlanRepository;
 use Nonce;
@@ -16,10 +17,14 @@ class PlansController extends Controller {
         global $pdo;
         require_once __DIR__ . '/../../../includes/repositories/PlanRepository.php';
         $planRepo = new PlanRepository($pdo);
-        $plans = $planRepo->getAll();
+        
+        $totalItems = $planRepo->countAll();
+        $pagination = Pagination::getParams($totalItems, 25);
+        $plans = $planRepo->getAll($pagination['limit'], $pagination['offset']);
 
         $this->render('admin/plans', [
             'plans' => $plans,
+            'pagination' => $pagination,
             'nonces' => [
                 'save' => Nonce::create('save_plan'),
                 'delete' => Nonce::create('delete_plan')
