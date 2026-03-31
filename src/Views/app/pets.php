@@ -97,6 +97,20 @@ function openPetModal(data = null) {
                 <input type="hidden" name="id" value="${isEdit ? data.id : ''}">
                 <input type="hidden" name="nonce" value="<?php echo $nonce_save; ?>">
                 
+                <div class="form-group mb-4">
+                    <label class="form-label">Foto do Paciente</label>
+                    <div class="modern-upload" style="border: 1px dashed var(--border); border-radius: 12px; padding: 25px; text-align: center; cursor: pointer; background: rgba(var(--primary-rgb), 0.02); position: relative;">
+                        <label for="pet-foto" style="cursor: pointer; display: block; margin: 0;">
+                            <div id="photo-preview-container" class="mb-2" style="${isEdit && data.foto_url ? '' : 'display: none;'}">
+                                <img id="photo-preview" src="${isEdit && data.foto_url ? '<?php echo SITE_URL; ?>' + data.foto_url : ''}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 20px; border: 2px solid var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                            </div>
+                            <i data-lucide="camera" class="icon-lucide mb-2 text-primary" style="width: 32px; height: 32px; ${isEdit && data.foto_url ? 'display: none;' : ''}"></i>
+                            <div class="small fw-800 photo-upload-label text-main-color mt-2">${isEdit && data.foto_url ? 'Alterar foto do pet' : 'Clique para enviar foto...'}</div>
+                        </label>
+                        <input type="file" id="pet-foto" name="foto" accept="image/*" onchange="handlePhotoChange(this)" style="display: none;">
+                    </div>
+                </div>
+
                 <h6 class="mb-3 d-flex align-items-center gap-2 label-caps-header">
                     <i data-lucide="user" class="icon-lucide icon-xs"></i> Responsável e Nome
                 </h6>
@@ -155,19 +169,16 @@ function openPetModal(data = null) {
 
                 <div class="form-grid-3 mb-3">
                     <div class="form-group">
-                        <label class="form-label">Sexo</label>
-                        <select name="sexo" class="form-control">
-                            <option value="M" ${isEdit && data.sexo == 'M' ? 'selected' : ''}>Macho</option>
-                            <option value="F" ${isEdit && data.sexo == 'F' ? 'selected' : ''}>Fêmea</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Peso (kg)</label>
                         <input type="text" name="peso" class="form-control mask-weight" value="${isEdit ? (data.peso || '') : ''}" placeholder="0.0">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Idade / Nasc.</label>
-                        <input type="text" name="idade" class="form-control mask-number" value="${isEdit ? (data.idade || '') : ''}" placeholder="Ex: 5">
+                        <label class="form-label">Nascimento</label>
+                        <input type="date" name="nascimento" class="form-control" value="${isEdit ? (data.data_nascimento || '') : ''}" onchange="updateAge(this.value, this.closest('.form-grid-3').querySelector('[name=idade]'))">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Idade</label>
+                        <input type="text" name="idade" class="form-control" value="${isEdit ? (data.idade || '') : ''}" placeholder="Calculado/Manual">
                     </div>
                 </div>
 
@@ -182,16 +193,6 @@ function openPetModal(data = null) {
                     </div>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="form-label">Foto do Paciente</label>
-                    <div class="modern-upload">
-                        <label for="pet-foto">
-                            <i data-lucide="camera" class="icon-lucide"></i>
-                            <span>Clique para selecionar a foto</span>
-                        </label>
-                        <input type="file" id="pet-foto" name="foto" accept="image/*" onchange="this.parentElement.querySelector('span').innerText = this.files[0].name" style="opacity:0; position:absolute; width:1px; height:1px;">
-                    </div>
-                </div>
             </div>
 
             <div class="modal-footer mt-4">
@@ -216,6 +217,58 @@ function openPetModal(data = null) {
         icon: 'user'
     });
 }
+
+function updateAge(dateString, targetInput) {
+    if (!dateString) return;
+    const birthDate = new Date(dateString + 'T00:00:00');
+    const today = new Date();
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+    let days = today.getDate() - birthDate.getDate();
+
+    if (days < 0) {
+        months--;
+        const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        days += lastMonth.getDate();
+    }
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    let ageText = "";
+    if (years > 0) {
+        ageText = years + (years === 1 ? " ano" : " anos");
+        if (months > 0) ageText += " e " + months + (months === 1 ? " mês" : " meses");
+    } else if (months > 0) {
+        ageText = months + (months === 1 ? " mês" : " meses");
+        if (days > 0) ageText += " e " + days + (days === 1 ? " dia" : " dias");
+    } else {
+        ageText = days + (days === 1 ? " dia" : " dias");
+    }
+    targetInput.value = ageText;
+}
+
+/**
+ * Handle Photo Preview
+ */
+window.handlePhotoChange = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        const container = document.getElementById('photo-preview-container');
+        const preview = document.getElementById('photo-preview');
+        const label = container.parentElement.querySelector('.photo-upload-label');
+        const icon = container.parentElement.querySelector('i[data-lucide="camera"]');
+
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            container.style.display = 'block';
+            if (icon) icon.style.display = 'none';
+            label.innerText = 'Foto selecionada para envio';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
 
 async function deletePet(id) {
     if (await UI.confirm('Remover este pet? O histórico de consultas não poderá ser recuperado.')) {

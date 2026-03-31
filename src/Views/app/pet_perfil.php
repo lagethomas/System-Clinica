@@ -103,8 +103,16 @@
                             <i data-lucide="calendar" class="icon-lucide icon-sm"></i>
                         </div>
                         <div>
-                            <label class="label-tiny-caps">Idade Aproximada</label>
-                            <div class="fw-800 value-display-18"><?php echo htmlspecialchars($pet['idade'] ?: 'Não Inf.'); ?></div>
+                            <label class="label-tiny-caps">Nascimento / Idade</label>
+                            <div class="fw-800 value-display-18">
+                                <?php 
+                                if (!empty($pet['data_nascimento'])) {
+                                    echo date('d/m/Y', strtotime($pet['data_nascimento'])) . ' (' . htmlspecialchars($pet['idade'] ?: 'N/I') . ')';
+                                } else {
+                                    echo htmlspecialchars($pet['idade'] ?: 'Não Inf.');
+                                }
+                                ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -304,13 +312,17 @@ function editPet(data) {
                         <input type="text" name="peso" class="form-control mask-weight" value="${data.peso || ''}" placeholder="0.0">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Idade / Nasc.</label>
-                        <input type="text" name="idade" class="form-control mask-number" value="${data.idade || ''}" placeholder="Ex: 5">
+                        <label class="form-label">Nascimento</label>
+                        <input type="date" name="nascimento" class="form-control" value="${data.data_nascimento || ''}" onchange="updateAge(this.value, this.closest('.form-grid-3').querySelector('[name=idade]'))">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Cor</label>
-                        <input type="text" name="cor" class="form-control" value="${data.cor || ''}">
+                        <label class="form-label">Idade</label>
+                        <input type="text" name="idade" class="form-control" value="${data.idade || ''}" placeholder="Calculado">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Cor</label>
+                    <input type="text" name="cor" class="form-control" value="${data.cor || ''}">
                 </div>
             </div>
 
@@ -323,6 +335,37 @@ function editPet(data) {
     UI.showModal('Editar Dados do Paciente', html);
     lucide.createIcons();
     if (UI.initMasks) UI.initMasks(document.getElementById('form-pet-edit'));
+}
+
+function updateAge(dateString, targetInput) {
+    if (!dateString) return;
+    const birthDate = new Date(dateString + 'T00:00:00');
+    const today = new Date();
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+    let days = today.getDate() - birthDate.getDate();
+
+    if (days < 0) {
+        months--;
+        const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        days += lastMonth.getDate();
+    }
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    let ageText = "";
+    if (years > 0) {
+        ageText = years + (years === 1 ? " ano" : " anos");
+        if (months > 0) ageText += " e " + months + (months === 1 ? " mês" : " meses");
+    } else if (months > 0) {
+        ageText = months + (months === 1 ? " mês" : " meses");
+        if (days > 0) ageText += " e " + days + (days === 1 ? " dia" : " dias");
+    } else {
+        ageText = days + (days === 1 ? " dia" : " dias");
+    }
+    targetInput.value = ageText;
 }
 
 /**

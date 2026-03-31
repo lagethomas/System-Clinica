@@ -111,6 +111,7 @@ class PetController extends Controller {
             'especie' => $_POST['especie'] ?? null,
             'raca' => $_POST['raca'] ?? null,
             'sexo' => $_POST['sexo'] ?? null,
+            'data_nascimento' => !empty($_POST['nascimento']) ? $_POST['nascimento'] : null,
             'idade' => $_POST['idade'] ?? null,
             'peso' => !empty($_POST['peso']) ? (float)str_replace(',', '.', $_POST['peso']) : null,
             'cor' => $_POST['cor'] ?? null,

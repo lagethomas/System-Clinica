@@ -93,8 +93,16 @@
             <div class="info-block mb-3 p-3 bg-muted-light border-radius-sm d-flex align-items-center gap-3">
                 <i data-lucide="calendar" class="icon-lucide text-primary"></i>
                 <div class="flex-1">
-                    <label class="label-caps-header">Idade</label>
-                    <span class="text-main"><?php echo htmlspecialchars($pet['idade'] ?? 'N/A'); ?></span>
+                    <label class="label-caps-header">Nascimento / Idade</label>
+                    <span class="text-main">
+                        <?php 
+                        if (!empty($pet['data_nascimento'])) {
+                            echo date('d/m/Y', strtotime($pet['data_nascimento'])) . ' (' . htmlspecialchars($pet['idade'] ?: 'N/I') . ')';
+                        } else {
+                            echo htmlspecialchars($pet['idade'] ?: 'Não Inf.');
+                        }
+                        ?>
+                    </span>
                 </div>
             </div>
             <div class="info-block mb-3 p-3 bg-muted-light border-radius-sm d-flex align-items-center gap-3">
