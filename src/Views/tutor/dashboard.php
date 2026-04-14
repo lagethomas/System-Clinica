@@ -100,6 +100,35 @@
     </div>
 </div>
 
+<?php if (!empty($pending_orders)): ?>
+<div class="dashboard-card mt-4" style="border-left:4px solid #f59e0b;background:rgba(245,158,11,.05);">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="icon-circle-box" style="background:rgba(245,158,11,.15);">
+            <i data-lucide="credit-card" class="icon-lucide" style="color:#f59e0b;"></i>
+        </div>
+        <div>
+            <h3 class="margin-0">Pagamentos Pendentes</h3>
+            <p class="text-muted small mb-0">Complete o pagamento antes que seu pedido seja cancelado.</p>
+        </div>
+    </div>
+    <?php foreach ($pending_orders as $po):
+        $expires   = strtotime($po['created_at']) + (4 * 3600);
+        $remaining = $expires - time();
+        $timeStr   = $remaining > 0 ? gmdate('H\h i\m', $remaining) : 'Expirando...';
+    ?>
+    <div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-12" style="border:1px solid rgba(245,158,11,.3);background:rgba(245,158,11,.03);">
+        <div>
+            <div class="fw-700">Pedido #<?php echo $po['id']; ?> — R$ <?php echo number_format((float)$po['total'], 2, ',', '.'); ?></div>
+            <div class="small" style="color:#f59e0b;font-weight:700;">⏳ Expira em: <?php echo $timeStr; ?></div>
+        </div>
+        <a href="<?php echo SITE_URL . '/' . ($_SESSION['company_slug'] ?? '') . '/loja'; ?>" class="btn-primary" style="background:#f59e0b;border-color:#f59e0b;color:#000;white-space:nowrap;font-size:12px;">
+            Pagar Agora
+        </a>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
 <h3 class="mt-5 mb-4 d-flex align-items-center gap-2">
     <i data-lucide="dog" class="icon-lucide text-primary"></i> Meus Pets
 </h3>

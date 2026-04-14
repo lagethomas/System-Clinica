@@ -264,6 +264,27 @@ ALTER TABLE `cp_planos_pet` ADD FOREIGN KEY (`pet_id`) REFERENCES `cp_pets`(`id`
 ALTER TABLE `cp_planos_pet` ADD FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE;
 
 -- ----------------------------
+-- Table structure for cp_produtos
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `cp_produtos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `company_id` INT NOT NULL,
+  `nome` VARCHAR(255) NOT NULL,
+  `descricao` TEXT DEFAULT NULL,
+  `preco` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  `preco_promocional` DECIMAL(10, 2) DEFAULT NULL,
+  `em_promocao` TINYINT(1) DEFAULT 0,
+  `capa` VARCHAR(255) DEFAULT NULL,
+  `status` TINYINT(1) DEFAULT 1,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_company` (`company_id`),
+  INDEX `idx_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE `cp_produtos` ADD FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE;
+
+-- ----------------------------
 -- Initial Data (Base)
 -- ----------------------------
 INSERT IGNORE INTO `cp_users` (`name`, `username`, `email`, `password`, `role`) VALUES 

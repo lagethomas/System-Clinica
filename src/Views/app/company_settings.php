@@ -17,6 +17,9 @@ $current_theme = $company['theme'] ?? 'gold-black';
     <a href="?tab=themes" class="nav-link-tab <?php echo $active_tab === 'themes' ? 'active' : ''; ?>">
         <i data-lucide="palette" class="icon-lucide"></i> Temas
     </a>
+    <a href="?tab=mercadopago" class="nav-link-tab <?php echo $active_tab === 'mercadopago' ? 'active' : ''; ?>">
+        <i data-lucide="credit-card" class="icon-lucide"></i> Mercado Pago
+    </a>
 </div>
 
 <div class="card settings-main-card">
@@ -140,6 +143,89 @@ $current_theme = $company['theme'] ?? 'gold-black';
             <div class="settings-footer-section" style="padding: 30px;">
                 <button type="submit" class="btn-primary settings-save-btn"><i data-lucide="save" class="icon-lucide"></i> Aplicar Tema e Cor</button>
             </div>
+        <?php elseif ($active_tab === 'mercadopago'): ?>
+
+            <div class="settings-header-box" style="padding: 25px 30px 5px 30px; border-bottom: none;">
+                <h5><i data-lucide="credit-card" class="icon-lucide" style="width:16px;height:16px;"></i> Mercado Pago</h5>
+                <p>Configure suas credenciais para aceitar pagamentos online via Pix e cartão na loja da sua clínica.</p>
+            </div>
+
+            <!-- Delivery Fee & Status -->
+            <div style="padding: 20px 30px 0; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+                <div class="floating-group" style="width: 200px;">
+                    <input type="text" name="taxa_entrega" id="taxa_entrega" class="form-control"
+                           value="<?php echo number_format((float)($company['taxa_entrega'] ?? 0), 2, ',', '.'); ?>"
+                           placeholder=" ">
+                    <label for="taxa_entrega">Taxa de Entrega (R$)</label>
+                </div>
+
+                <label class="selectable-card" style="flex-direction: row; gap: 12px; width: auto; padding: 14px 20px; cursor: pointer; margin-bottom: 0;">
+                    <input type="checkbox" name="mp_enabled" id="mp_enabled_toggle"
+                           <?php echo ($company['mp_enabled'] ?? 0) == 1 ? 'checked' : ''; ?>
+                           style="display:none;" onchange="toggleMpStatus(this)">
+                    <span id="mp-toggle-icon" style="display:flex;align-items:center;">
+                        <i data-lucide="<?php echo ($company['mp_enabled'] ?? 0) == 1 ? 'toggle-right' : 'toggle-left'; ?>"
+                           class="icon-lucide"
+                           style="width:24px;height:24px;color:<?php echo ($company['mp_enabled'] ?? 0) == 1 ? 'var(--primary)' : 'var(--text-muted)'; ?>;"></i>
+                    </span>
+                    <span style="font-size:14px;font-weight:600;">
+                        Pagamento Online via Mercado Pago:
+                        <strong id="mp-status-label" style="color:<?php echo ($company['mp_enabled'] ?? 0) == 1 ? 'var(--primary)' : 'var(--text-muted)'; ?>;">
+                            <?php echo ($company['mp_enabled'] ?? 0) == 1 ? 'ATIVADO' : 'DESATIVADO'; ?>
+                        </strong>
+                    </span>
+                </label>
+            </div>
+
+            <div class="form-grid-4" style="padding: 20px 30px 10px;">
+                <div class="form-group" style="grid-column: span 2;">
+                    <div class="floating-group">
+                        <input type="text" name="mp_public_key" class="form-control" id="mp_public_key"
+                               value="<?php echo htmlspecialchars($company['mp_public_key'] ?? ''); ?>"
+                               placeholder=" ">
+                        <label for="mp_public_key">Public Key</label>
+                    </div>
+                    <small class="text-muted" style="display:block;margin-top:4px;">Começa com <code>APP_USR-</code>. Encontrada em: Mercado Pago → Suas Integrações → Credenciais.</small>
+                </div>
+
+                <div class="form-group" style="grid-column: span 2;">
+                    <div class="floating-group password-toggle-wrapper">
+                        <input type="password" name="mp_access_token" class="form-control" id="mp_access_token"
+                               value="<?php echo htmlspecialchars($company['mp_access_token'] ?? ''); ?>"
+                               placeholder=" ">
+                        <label for="mp_access_token">Access Token (Produção)</label>
+                        <button type="button" class="password-toggle-btn" onclick="UI.togglePassword(this, 'mp_access_token')" tabindex="-1">
+                            <i data-lucide="eye" class="icon-lucide"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted" style="display:block;margin-top:4px;">⚠️ Use o token de <strong>Produção</strong>, não de teste. Este campo é sensível — nunca compartilhe.</small>
+                </div>
+            </div>
+
+            <!-- Help Guide -->
+            <div style="padding: 0 30px 20px;">
+                <div style="background: rgba(var(--primary-rgb), 0.06); border: 1px solid rgba(var(--primary-rgb), 0.15); border-radius: 14px; padding: 18px 22px;">
+                    <p style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px;">
+                        <i data-lucide="info" class="icon-lucide" style="width:14px;height:14px;"></i>
+                        Como obter suas credenciais
+                    </p>
+                    <ol style="font-size:13px;color:var(--text-muted);line-height:2;padding-left:18px;">
+                        <li>Acesse <a href="https://www.mercadopago.com.br/developers/panel" target="_blank" style="color:var(--primary);">mercadopago.com.br/developers/panel</a></li>
+                        <li>Vá em <strong>Suas Integrações</strong> → selecione ou crie uma aplicação</li>
+                        <li>Clique em <strong>Credenciais de Produção</strong></li>
+                        <li>Copie a <strong>Public Key</strong> e o <strong>Access Token</strong> e cole acima</li>
+                        <li>Ative o toggle e salve as configurações</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="settings-footer-section" style="padding: 20px 30px; border-top: 1px solid var(--border);">
+                <button type="submit" class="btn-primary settings-save-btn">
+                    <span class="btn-text"><i data-lucide="save" class="icon-lucide"></i> Salvar Integração</span>
+                    <span class="btn-loader" style="display:none;"><i data-lucide="loader" class="icon-lucide"></i> Salvando...</span>
+                </button>
+            </div>
+
         <?php endif; ?>
     </form>
 </div>
@@ -164,6 +250,20 @@ function previewImage(input, previewId, imgClass) {
             UI.showToast('Imagem selecionada!', 'info');
         }
         reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function toggleMpStatus(checkbox) {
+    const isOn = checkbox.checked;
+    const icon = document.getElementById('mp-toggle-icon');
+    const label = document.getElementById('mp-status-label');
+    if (icon) {
+        icon.innerHTML = `<i data-lucide="${isOn ? 'toggle-right' : 'toggle-left'}" class="icon-lucide" style="width:24px;height:24px;color:${isOn ? 'var(--primary)' : 'var(--text-muted)'};"></i>`;
+        if (window.lucide) lucide.createIcons({ nodes: [icon] });
+    }
+    if (label) {
+        label.textContent = isOn ? 'ATIVADO' : 'DESATIVADO';
+        label.style.color = isOn ? 'var(--primary)' : 'var(--text-muted)';
     }
 }
 

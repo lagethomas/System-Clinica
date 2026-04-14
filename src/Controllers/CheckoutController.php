@@ -153,19 +153,27 @@ class CheckoutController extends Controller {
         
         $json = file_get_contents('php://input');
         $data = json_decode($json, true);
+        $cid = (int)($_GET['cid'] ?? 0);
 
         if (isset($data['type']) && $data['type'] === 'payment') {
             $payment_id = $data['data']['id'];
-            $mp_token = $platform_settings['mp_access_token'] ?? '';
             
-            // Webhook Fallback
+            // Determine Token (Platform vs Specific Company)
+            $mp_token = $platform_settings['mp_access_token'] ?? '';
+            if ($cid > 0) {
+                $stmt_c = $pdo->prepare("SELECT mp_access_token FROM cp_companies WHERE id = ?");
+                $stmt_c->execute([$cid]);
+                $c_token = $stmt_c->fetchColumn();
+                if ($c_token) $mp_token = $c_token;
+            }
+
             if (empty($mp_token)) {
                 $stmt_sets = $pdo->query("SELECT setting_value FROM cp_settings WHERE setting_key = 'mp_access_token'");
                 $mp_token = $stmt_sets->fetchColumn() ?: '';
             }
 
             if (!$mp_token) {
-                $this->logMercadoPagoError("Webhook: Token MP ausente ao tentar processar pagamento.", ["payment_id" => $payment_id]);
+                $this->logMercadoPagoError("Webhook: Token MP ausente ao tentar processar pagamento.", ["payment_id" => $payment_id, "cid" => $cid]);
                 http_response_code(500);
                 exit;
             }
@@ -190,6 +198,8 @@ class CheckoutController extends Controller {
 
             if (isset($payment_info['status']) && $payment_info['status'] === 'approved') {
                 $ref = $payment_info['external_reference'] ?? '';
+                
+                // 1. SaaS Invoice
                 if (strpos($ref, 'INV-') === 0) {
                     $inv_id = (int)str_replace('INV-', '', $ref);
                     
@@ -208,6 +218,12 @@ class CheckoutController extends Controller {
                             $companyRepo->synchronizeExpiration($company_id);
                         }
                     }
+                }
+                // 2. Store Order
+                else if (strpos($ref, 'PEDLOJA-') === 0) {
+                    $order_id = (int)str_replace('PEDLOJA-', '', $ref);
+                    $stmt = $pdo->prepare("UPDATE cp_pedidos_loja SET payment_status = 'paid', payment_id = ? WHERE id = ? AND payment_status != 'paid'");
+                    $stmt->execute([$payment_id, $order_id]);
                 }
             }
         }

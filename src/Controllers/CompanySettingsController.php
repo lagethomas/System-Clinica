@@ -41,12 +41,17 @@ class CompanySettingsController extends Controller {
         
         // Merge POST data with existing record to allow partial updates of tabs
         $data = [
-            'name' => isset($_POST['name']) ? trim($_POST['name']) : ($company['name'] ?? ''),
-            'email' => isset($_POST['email']) ? trim($_POST['email']) : ($company['email'] ?? ''),
-            'phone' => isset($_POST['phone']) ? trim($_POST['phone']) : ($company['phone'] ?? ''),
-            'document' => isset($_POST['document']) ? trim($_POST['document']) : ($company['document'] ?? ''),
+            'name'          => isset($_POST['name']) ? trim($_POST['name']) : ($company['name'] ?? ''),
+            'email'         => isset($_POST['email']) ? trim($_POST['email']) : ($company['email'] ?? ''),
+            'phone'         => isset($_POST['phone']) ? trim($_POST['phone']) : ($company['phone'] ?? ''),
+            'document'      => isset($_POST['document']) ? trim($_POST['document']) : ($company['document'] ?? ''),
             'custom_domain' => isset($_POST['custom_domain']) ? trim($_POST['custom_domain']) : ($company['custom_domain'] ?? ''),
-            'theme' => $_POST['theme'] ?? ($company['theme'] ?? 'gold-black'),
+            'theme'         => $_POST['theme'] ?? ($company['theme'] ?? 'gold-black'),
+            // Mercado Pago Integration
+            'mp_public_key'   => isset($_POST['mp_public_key']) ? trim($_POST['mp_public_key']) : ($company['mp_public_key'] ?? ''),
+            'mp_access_token' => isset($_POST['mp_access_token']) ? trim($_POST['mp_access_token']) : ($company['mp_access_token'] ?? ''),
+            'mp_enabled'      => isset($_POST['mp_enabled']) ? 1 : 0,
+            'taxa_entrega'    => isset($_POST['taxa_entrega']) ? (float)str_replace(',', '.', $_POST['taxa_entrega']) : ($company['taxa_entrega'] ?? 0.00),
         ];
 
         // Inherit theme_color from selected theme primary color

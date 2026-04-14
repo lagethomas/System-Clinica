@@ -21,7 +21,12 @@ class Controller {
         $data['SITE_URL'] = SITE_URL;
 
         extract($data);
-        $viewPath = __DIR__ . "/../Views/" . $view . ".php";
+        
+        // Define possible view paths
+        $primaryPath = __DIR__ . "/../Views/" . $view . ".php";
+        $modulePath  = __DIR__ . "/../" . $view . ".php"; // For views passed as 'Modules/.../Views/...'
+        
+        $viewPath = file_exists($primaryPath) ? $primaryPath : $modulePath;
         
         if (!file_exists($viewPath)) {
             die("View $view not found at $viewPath");

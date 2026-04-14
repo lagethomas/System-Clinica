@@ -254,3 +254,6 @@ body {
     font-weight: 800 !important;
     text-transform: uppercase;
 }
+.status-active, .status-paid, .status-success{
+    color: #3a7859 !important;
+}

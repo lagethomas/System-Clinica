@@ -17,13 +17,13 @@
 .balance-divider { width: 1px; height: 60px; background: var(--border); }
 
 .btn-fechar-caixa { background: #ef4444; color: white; border: none; padding: 18px 40px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2); }
-.btn-fechar-caixa:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(239, 68, 68, 0.3); }
+.btn-fechar-caixa:hover { box-shadow: 0 15px 30px rgba(239, 68, 68, 0.3); }
 
 .status-icon-big { font-size: 60px; color: #ef4444; margin-bottom: 25px; opacity: 0.5; }
 .status-card.closed h2 { font-size: 28px; margin-bottom: 10px; }
 .status-card.closed p { color: var(--text-muted); margin-bottom: 30px; max-width: 400px; margin-left: auto; margin-right: auto; }
 .btn-abrir-caixa { background: var(--primary); color: #000; border: none; padding: 18px 40px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.3s; }
-.btn-abrir-caixa:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.3); }
+.btn-abrir-caixa:hover { box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.3); }
 
 .caixa-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 

@@ -75,7 +75,7 @@ function addIndex(string $table, string $indexName, string $columns): void {
 
 // --- EXECUÇÃO DAS MIGRAÇÕES ---
 
-addLog("Iniciando Migração Centralizada v2.4.0...");
+addLog("Iniciando Migração Centralizada v2.5.0...");
 
 // 1. Tabelas Base (SaaS Core)
 safeExec("CREATE TABLE IF NOT EXISTS `cp_settings` (
@@ -102,6 +102,8 @@ addCol('cp_companies', 'expires_at', 'DATE NULL AFTER status');
 addCol('cp_companies', 'inactive_since', 'DATE NULL AFTER status');
 addCol('cp_companies', 'subscription_status', 'VARCHAR(50) NULL AFTER status');
 addCol('cp_companies', 'mp_enabled', 'TINYINT(1) DEFAULT 0');
+addCol('cp_companies', 'mp_public_key', "VARCHAR(255) DEFAULT NULL COMMENT 'Mercado Pago Public Key'");
+addCol('cp_companies', 'mp_access_token', "TEXT DEFAULT NULL COMMENT 'Mercado Pago Access Token (Production)'");
 addCol('cp_companies', 'partner_id', 'INT NULL AFTER plan_id');
 addCol('cp_companies', 'custom_domain', 'VARCHAR(255) NULL AFTER slug');
 addCol('cp_invoices', 'last_reminder_date', 'DATE NULL');
@@ -134,7 +136,42 @@ addIndex('cp_financeiro', 'idx_finance_tutor', 'tutor_id');
 
 addCol('cp_tutores', 'contrato_url', 'VARCHAR(255) NULL AFTER telefone');
 
-// 5. Configurações Padrão
+// 5. Módulo de Produtos / Loja
+safeExec("CREATE TABLE IF NOT EXISTS `cp_produtos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `company_id` INT NOT NULL,
+  `nome` VARCHAR(255) NOT NULL,
+  `descricao` TEXT DEFAULT NULL,
+  `preco` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  `preco_promocional` DECIMAL(10, 2) DEFAULT NULL,
+  `em_promocao` TINYINT(1) DEFAULT 0,
+  `capa` VARCHAR(255) DEFAULT NULL,
+  `status` TINYINT(1) DEFAULT 1,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_company` (`company_id`),
+  INDEX `idx_status` (`status`),
+  CONSTRAINT `fk_produtos_company` FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_produtos");
+
+// 6. Módulo Loja Online v2.5.0 - Pedidos via WhatsApp/Carrinho
+safeExec("CREATE TABLE IF NOT EXISTS `cp_pedidos_loja` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `company_id` INT NOT NULL,
+  `cliente_nome` VARCHAR(255) NOT NULL,
+  `cliente_telefone` VARCHAR(30) DEFAULT NULL,
+  `observacoes` TEXT DEFAULT NULL,
+  `total` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+  `status` ENUM('pendente', 'confirmado', 'cancelado', 'entregue') DEFAULT 'pendente',
+  `itens_json` JSON DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX `idx_company` (`company_id`),
+  INDEX `idx_status` (`status`),
+  CONSTRAINT `fk_pedidos_loja_company` FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_pedidos_loja");
+
+// 7. Configurações Padrão
 $defaultSettings = [
     'system_name' => 'VetManager SaaS',
     'grace_period' => '2',
@@ -150,7 +187,24 @@ foreach ($defaultSettings as $sk => $sv) {
     $stmt->execute([$sk, $sv]);
 }
 
-// 6. Sincronização de Tutores -> Usuários (Portal do Cliente)
+// 8. Módulo Loja Online v2.6.0 - Checkout Completo & Mercado Pago
+addCol('cp_companies', 'taxa_entrega', 'DECIMAL(10,2) DEFAULT 0.00');
+
+addCol('cp_pedidos_loja', 'zip_code', 'VARCHAR(20) NULL');
+addCol('cp_pedidos_loja', 'neighborhood', 'VARCHAR(100) NULL');
+addCol('cp_pedidos_loja', 'address', 'VARCHAR(255) NULL');
+addCol('cp_pedidos_loja', 'city', 'VARCHAR(100) NULL');
+addCol('cp_pedidos_loja', 'state', 'VARCHAR(2) NULL');
+addCol('cp_pedidos_loja', 'number', 'VARCHAR(20) NULL');
+addCol('cp_pedidos_loja', 'complement', 'VARCHAR(255) NULL');
+addCol('cp_pedidos_loja', 'tipo', "ENUM('delivery', 'pickup') DEFAULT 'pickup'");
+addCol('cp_pedidos_loja', 'payment_mode', "ENUM('delivery', 'online') DEFAULT 'delivery'");
+addCol('cp_pedidos_loja', 'payment_status', "ENUM('pending', 'paid') DEFAULT 'pending'");
+addCol('cp_pedidos_loja', 'payment_id', 'VARCHAR(255) NULL');
+addCol('cp_pedidos_loja', 'frete', 'DECIMAL(10,2) DEFAULT 0.00');
+addCol('cp_pedidos_loja', 'tutor_id', 'INT NULL');
+
+// 9. Sincronização de Tutores -> Usuários (Portal do Cliente)
 function syncTutoresToUsers(): void {
     global $pdo;
     $tutores = $pdo->query("SELECT * FROM cp_tutores")->fetchAll();
@@ -188,7 +242,7 @@ syncTutoresToUsers();
 header('Content-Type: application/json');
 echo json_encode([
     'success' => true,
-    'message' => 'Migração unificada v2.4.0 concluída!',
-    'version' => 'v2.4.0',
-    'logs' => $logs
+    'message' => 'Migração unificada v2.5.0 concluída!',
+    'version' => 'v2.5.0',
+    'logs'    => $logs
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);

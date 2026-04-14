@@ -102,9 +102,24 @@ $router->add('GET', '/app/financeiro', ['controller' => 'FinanceiroController', 
 $router->add('POST', '/api/financeiro/add', ['controller' => 'FinanceiroController', 'method' => 'addMovimentacao', 'middlewares' => [$auth]]);
 $router->add('POST', '/api/financeiro/delete', ['controller' => 'FinanceiroController', 'method' => 'delete', 'middlewares' => [$auth]]);
 
+// --- Produtos (Modularized) ---
+$router->add('GET',  '/app/produtos',        ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'index',   'middlewares' => [$auth]]);
+$router->add('POST', '/api/produtos/save',   ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'save',    'middlewares' => [$auth]]);
+$router->add('POST', '/api/produtos/delete', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'delete',  'middlewares' => [$auth]]);
+$router->add('GET',  '/api/produtos/details', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'details', 'middlewares' => [$auth]]);
+// Specific admin routes MUST come before wildcard /{slug}/loja routes
+$router->add('GET',  '/app/loja/pedidos',          ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'adminPedidos', 'middlewares' => [$auth]]);
+$router->add('POST', '/api/pedidos/update-status', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'updateOrderStatus', 'middlewares' => [$auth]]);
+$router->add('POST', '/api/pedidos/public-create', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'publicCreateOrder']);
+$router->add('GET',  '/api/public-search-client',  ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'publicSearchClient']);
+// Wildcard slug routes (after specific routes)
+$router->add('GET',  '/{slug}/loja',         ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'loja']);
+$router->add('GET',  '/{slug}/loja/{id}',    ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'single']);
+
 // --- Portal do Tutor ---
 $router->add('GET', '/app/tutor/dashboard', ['controller' => 'TutorDashboardController', 'method' => 'index', 'middlewares' => [$auth]]);
 $router->add('GET', '/app/tutor/pet/{id}', ['controller' => 'TutorDashboardController', 'method' => 'petPerfil', 'middlewares' => [$auth]]);
+$router->add('GET', '/app/tutor/minhas-compras', ['controller' => 'TutorDashboardController', 'method' => 'minhasCompras', 'middlewares' => [$auth]]);
 
 // --- SaaS Slug Route (Keep this at the very end!) ---
 $router->add('GET',  '/{slug}',       ['controller' => 'LoginController', 'method' => 'companyLogin']);

@@ -40,7 +40,8 @@ $page_titles = [
     'financeiro' => 'Módulo Financeiro',
     'plans' => 'Pacotes de Assinatura',
     'companies' => 'Empresas Clientes',
-    'subscriptions' => 'Faturas e Assinaturas'
+    'subscriptions' => 'Faturas e Assinaturas',
+    'produtos' => 'Produtos / Loja'
 ];
 
 // Fetch Notifications
@@ -264,6 +265,16 @@ $unread_count = count($unread_notifications);
                             <i data-lucide="home" class="icon-lucide"></i> <span>Minha Área</span>
                         </a>
                     </li>
+                    <li class="<?php echo ($route == 'app/tutor/loja') ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($_SESSION['company_slug'] ?? ''); ?>/loja">
+                            <i data-lucide="shopping-bag" class="icon-lucide"></i> <span>Loja</span>
+                        </a>
+                    </li>
+                    <li class="<?php echo ($route == 'app/tutor/minhas-compras') ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/app/tutor/minhas-compras">
+                            <i data-lucide="package" class="icon-lucide"></i> <span>Minhas Compras</span>
+                        </a>
+                    </li>
                     <?php endif; ?>
 
                     <?php if (!Auth::isAdmin() && !Auth::isTutor() && !$isRestricted): ?>
@@ -285,6 +296,11 @@ $unread_count = count($unread_notifications);
                     <li class="<?php echo ($current_page == 'financeiro') ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>/app/financeiro">
                             <i data-lucide="wallet" class="icon-lucide"></i> <span>Financeiro</span>
+                        </a>
+                    </li>
+                    <li class="<?php echo ($current_page == 'produtos') ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/app/produtos">
+                            <i data-lucide="shopping-bag" class="icon-lucide"></i> <span>Produtos / Loja</span>
                         </a>
                     </li>
                     <?php endif; ?>

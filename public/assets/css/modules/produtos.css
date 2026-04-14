@@ -1,55 +1,135 @@
-/* CSS para Módulo de Produtos */
+/* CSS para Módulo de Produtos - System-Clinica */
 
-.product-info-cell {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+.modern-upload {
+    position: relative;
+    width: 100%;
 }
 
-.product-image-mini {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+.modern-upload input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
     overflow: hidden;
-    background: rgba(var(--primary-rgb), 0.05);
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+
+.modern-upload label {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--border);
-    flex-shrink: 0;
+    gap: 10px;
+    padding: 20px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.02);
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
 }
 
-.product-image-mini img {
+.modern-upload label:hover {
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.05);
+}
+
+.modern-upload .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.modern-upload .img-preview-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+.modern-upload .img-preview-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    opacity: 0.8;
 }
 
-.product-image-mini i {
-    font-size: 18px;
+/* Estado de Hover quando já tem imagem */
+.modern-upload label:hover .img-preview-container img {
+    filter: blur(2px) brightness(0.6);
+}
+
+.modern-upload label:hover .upload-placeholder {
+    opacity: 1;
+}
+
+/* Badge de Promoção nos Cards de Gerenciamento */
+.product-capa-thumb {
+    position: relative;
+}
+
+.premium-table .badge-promo-mini {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e11d48;
+    color: #fff;
+    font-size: 8px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+/* Selectable Card Style (for Promotion Toggle) */
+.selectable-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    min-height: 80px;
+    gap: 8px;
+}
+
+.selectable-card i {
+    width: 20px;
+    height: 20px;
     color: var(--text-muted);
 }
 
-.product-name {
-    font-weight: 700;
-    color: var(--text-main);
-    font-size: 14px;
-}
-
-.product-code {
-    font-size: 11px;
+.selectable-card span {
+    font-size: 13px;
+    font-weight: 600;
     color: var(--text-muted);
 }
 
-.table-responsive {
-    border-radius: 16px;
-    overflow: hidden;
+.selectable-card:hover {
+    background: rgba(var(--primary-rgb), 0.05);
+    border-color: var(--primary);
 }
 
-.premium-table {
-    background: transparent;
+.selectable-card.active {
+    background: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
 }
 
-.premium-table tr:hover {
-    background: rgba(255, 255, 255, 0.02);
+.selectable-card.active i, 
+.selectable-card.active span {
+    color: var(--primary);
 }

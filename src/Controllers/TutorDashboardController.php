@@ -30,10 +30,35 @@ class TutorDashboardController extends Controller {
         ", ['tid' => $tutor_id, 'cid' => $company_id]);
 
         $this->render('tutor/dashboard', [
-            'title' => 'Minha Área - ' . $tutor['nome'],
-            'tutor' => $tutor,
-            'pets' => $pets,
-            'next_appointments' => $next_consultas
+            'title'             => 'Minha Área - ' . $tutor['nome'],
+            'tutor'             => $tutor,
+            'pets'              => $pets,
+            'next_appointments' => $next_consultas,
+            'pending_orders'    => Database::fetchAll(
+                "SELECT * FROM cp_pedidos_loja 
+                 WHERE tutor_id = :tid AND company_id = :cid 
+                   AND payment_mode = 'online' AND payment_status = 'pending' AND status = 'pendente'
+                 ORDER BY created_at DESC",
+                ['tid' => $tutor_id, 'cid' => $company_id]
+            )
+        ]);
+    }
+
+    public function minhasCompras(): void {
+        Auth::requireRole('tutor');
+        $company_id = Auth::companyId();
+        $tutor_id   = Auth::tutorId();
+
+        $pedidos = Database::fetchAll(
+            "SELECT * FROM cp_pedidos_loja
+             WHERE tutor_id = :tid AND company_id = :cid
+             ORDER BY created_at DESC",
+            ['tid' => $tutor_id, 'cid' => $company_id]
+        );
+
+        $this->render('tutor/minhas_compras', [
+            'title'   => 'Minhas Compras',
+            'pedidos' => $pedidos,
         ]);
     }
 
