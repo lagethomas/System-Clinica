@@ -86,7 +86,7 @@
                                         <span class="text-muted" style="text-decoration: line-through; font-size: 11px;">R$ <?php echo number_format((float)$p['preco'], 2, ',', '.'); ?></span>
                                         <span style="color: #e11d48; font-weight: 700; font-size: 14px;">R$ <?php echo number_format((float)$p['preco_promocional'], 2, ',', '.'); ?></span>
                                     </div>
-                                    <span class="badge" style="background: #e11d48; color: #fff; font-size: 9px; padding: 2px 6px; width: fit-content;">PROMOÇÃO</span>
+                                    <span class="badge" style="background: #e11d48; color: #fff; font-size: 9px; padding: 2px 6px; width: fit-content;">Clube</span>
                                 <?php else: ?>
                                     <div style="font-weight: 700; font-size: 14px; color: var(--primary);">
                                         R$ <?php echo number_format((float)$p['preco'], 2, ',', '.'); ?>
@@ -174,7 +174,7 @@ function openProdutoModal(data = null) {
                          <div class="selectable-card ${isEdit && data.em_promocao == 1 ? 'active' : ''}" onclick="togglePromoField(this)">
                             <div class="d-flex align-items-center gap-2">
                                 <i data-lucide="tag" class="icon-lucide icon-xs"></i>
-                                <span style="font-size: 13px; font-weight: 600;">Produto em Promoção?</span>
+                                <span style="font-size: 13px; font-weight: 600;">Clube de Descontos?</span>
                                 <input type="checkbox" name="em_promocao" value="1" ${isEdit && data.em_promocao == 1 ? 'checked' : ''} style="display:none;">
                             </div>
                         </div>
@@ -183,7 +183,7 @@ function openProdutoModal(data = null) {
                     <div id="promo-price-group" style="display: ${isEdit && data.em_promocao == 1 ? 'block' : 'none'}">
                         <div class="floating-group">
                             <input type="text" name="preco_promocional" class="form-control mask-money" value="${isEdit ? (data.preco_promocional || '').replace('.', ',') : ''}" placeholder=" " id="prod_preco_promo">
-                            <label for="prod_preco_promo">Preço Promocional (R$)</label>
+                            <label for="prod_preco_promo">Preço Clube (R$)</label>
                         </div>
                     </div>
                 </div>

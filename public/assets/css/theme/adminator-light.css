@@ -257,3 +257,6 @@ body {
 .status-active, .status-paid, .status-success{
     color: #3a7859 !important;
 }
+.floating-autocomplete-dropdown{
+    background-color: #FFF !important;
+}
