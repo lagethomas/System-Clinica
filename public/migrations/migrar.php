@@ -204,6 +204,35 @@ addCol('cp_pedidos_loja', 'payment_id', 'VARCHAR(255) NULL');
 addCol('cp_pedidos_loja', 'frete', 'DECIMAL(10,2) DEFAULT 0.00');
 addCol('cp_pedidos_loja', 'tutor_id', 'INT NULL');
 
+// 10. Módulo de Categorias de Produtos
+safeExec("CREATE TABLE IF NOT EXISTS `cp_categorias_produtos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `company_id` INT NOT NULL,
+  `nome` VARCHAR(100) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_company` (`company_id`),
+  CONSTRAINT `fk_categorias_company` FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_categorias_produtos");
+
+addCol('cp_produtos', 'categoria_id', 'INT NULL AFTER company_id');
+addIndex('cp_produtos', 'idx_categoria', 'categoria_id');
+
+// 11. Módulo Clínica v2.7.0 (Sincronização com Sistema Principal)
+addCol('cp_consultas', 'tutor_id', 'INT NULL AFTER id');
+addCol('cp_consultas', 'servico', 'VARCHAR(255) NULL AFTER motivo');
+addCol('cp_consultas', 'valor_cobrado', 'DECIMAL(10,2) DEFAULT 0.00 AFTER valor');
+addIndex('cp_consultas', 'idx_tutor_id', 'tutor_id');
+
+safeExec("CREATE TABLE IF NOT EXISTS `cp_consulta_anexos` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `consulta_id` INT NOT NULL,
+  `nome` VARCHAR(255) NOT NULL,
+  `arquivo_url` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_consulta` (`consulta_id`),
+  CONSTRAINT `fk_anexos_consulta` FOREIGN KEY (`consulta_id`) REFERENCES `cp_consultas`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_consulta_anexos");
+
 // 9. Sincronização de Tutores -> Usuários (Portal do Cliente)
 function syncTutoresToUsers(): void {
     global $pdo;

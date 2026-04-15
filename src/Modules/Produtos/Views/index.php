@@ -10,6 +10,9 @@
         <p class="text-muted">Cadastre e configure os produtos da sua loja online.</p>
     </div>
     <div class="page-header-actions">
+        <a href="<?php echo SITE_URL; ?>/app/produtos/categorias" class="btn-primary-glass">
+            <i data-lucide="tag" class="icon-lucide"></i> Categorias
+        </a>
         <a href="<?php echo SITE_URL; ?>/app/loja/pedidos" class="btn-primary-glass">
             <i data-lucide="shopping-bag" class="icon-lucide"></i> Gerenciar Pedidos
         </a>
@@ -29,6 +32,7 @@
                 <tr>
                     <th style="width: 80px;">Capa</th>
                     <th>Nome do Produto</th>
+                    <th>Categoria</th>
                     <th>Preço</th>
                     <th>Status</th>
                     <th class="text-right">Ações</th>
@@ -63,6 +67,18 @@
                             <td>
                                 <div style="font-weight: 600; color: var(--text-main);"><?php echo htmlspecialchars($p['nome']); ?></div>
                                 <div style="font-size: 11px; color: var(--text-muted);"><?php echo htmlspecialchars(mb_strimwidth($p['descricao'] ?: '', 0, 50, '...')); ?></div>
+                            </td>
+                            <td>
+                                <?php 
+                                $cat_nome = '—';
+                                if (!empty($p['categoria_id'])) {
+                                    $cat = array_filter($categorias, fn($c) => $c['id'] == $p['categoria_id']);
+                                    if (!empty($cat)) {
+                                        $cat_nome = htmlspecialchars(reset($cat)['nome']);
+                                    }
+                                }
+                                echo $cat_nome;
+                                ?>
                             </td>
                             <td>
                                 <?php if ($p['em_promocao']): ?>
@@ -124,6 +140,20 @@ function openProdutoModal(data = null) {
                                 <span id="img-name-preview" class="mt-2 text-uppercase">Selecionar Foto</span>
                             </div>
                         </label>
+                    </div>
+                </div>
+
+                <div class="form-grid-2 mb-3">
+                    <div class="floating-group">
+                        <select name="categoria_id" class="form-control" id="prod_cat">
+                            <option value="">Sem Categoria</option>
+                            <?php foreach ($categorias as $cat): ?>
+                                <option value="<?php echo $cat['id']; ?>" ${isEdit && data.categoria_id == <?php echo $cat['id']; ?> ? 'selected' : ''}>
+                                    <?php echo htmlspecialchars($cat['nome']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <label for="prod_cat">Categoria</label>
                     </div>
                 </div>
 

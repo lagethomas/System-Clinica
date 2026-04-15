@@ -109,6 +109,12 @@ $router->add('POST', '/api/produtos/delete', ['controller' => 'App\Modules\Produ
 $router->add('GET',  '/api/produtos/details', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'details', 'middlewares' => [$auth]]);
 // Specific admin routes MUST come before wildcard /{slug}/loja routes
 $router->add('GET',  '/app/loja/pedidos',          ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'adminPedidos', 'middlewares' => [$auth]]);
+
+// --- Categorias de Produtos ---
+$router->add('GET',  '/app/produtos/categorias',        ['controller' => 'App\Modules\Produtos\Controllers\CategoriasController', 'method' => 'index',  'middlewares' => [$auth]]);
+$router->add('POST', '/api/produtos/categorias/save',   ['controller' => 'App\Modules\Produtos\Controllers\CategoriasController', 'method' => 'save',   'middlewares' => [$auth]]);
+$router->add('POST', '/api/produtos/categorias/delete', ['controller' => 'App\Modules\Produtos\Controllers\CategoriasController', 'method' => 'delete', 'middlewares' => [$auth]]);
+
 $router->add('POST', '/api/pedidos/update-status', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'updateOrderStatus', 'middlewares' => [$auth]]);
 $router->add('POST', '/api/pedidos/public-create', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'publicCreateOrder']);
 $router->add('GET',  '/api/public-search-client',  ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'publicSearchClient']);

@@ -175,7 +175,7 @@
             <p class="text-muted small mt-2 mb-0">Linha do tempo cronológica de todos os atendimentos, diagnósticos e medicações.</p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn-secondary px-4 py-2 rounded-10 fw-700"><i data-lucide="download" class="icon-lucide icon-xs mr-2"></i> Exportar PDF</button>
+            <button class="btn-secondary px-4 py-2 rounded-10 fw-700" onclick="window.print()"><i data-lucide="download" class="icon-lucide icon-xs mr-2"></i> Exportar PDF</button>
         </div>
     </div>
 
@@ -238,6 +238,20 @@
                                     <p class="small text-muted mb-0"><i data-lucide="info" class="icon-lucide icon-xs mr-1"></i> <?php echo htmlspecialchars($c['observacoes']); ?></p>
                                 </div>
                             <?php endif; ?>
+
+                            <?php if (!empty($c['anexos'])): ?>
+                                <div class="mt-4">
+                                    <label class="label-tiny-caps mb-2">Arquivos Anexados</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <?php foreach ($c['anexos'] as $an): ?>
+                                            <a href="<?php echo SITE_URL . $an['arquivo_url']; ?>" target="_blank" class="badge-attachment-premium">
+                                                <i data-lucide="file-text" class="icon-lucide icon-xs mr-1"></i>
+                                                <?php echo htmlspecialchars($an['nome']); ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -247,7 +261,6 @@
 </div>
 
 <script>
-// Logic remains identical, but I will adjust the UI class usage if needed in future turns
 function editPet(data) {
     const html = `
         <form class="ajax-form" id="form-pet-edit" action="<?php echo SITE_URL; ?>/api/pets/save" enctype="multipart/form-data">
@@ -337,63 +350,12 @@ function editPet(data) {
     if (UI.initMasks) UI.initMasks(document.getElementById('form-pet-edit'));
 }
 
-function updateAge(dateString, targetInput) {
-    if (!dateString) return;
-    const birthDate = new Date(dateString + 'T00:00:00');
-    const today = new Date();
-    let years = today.getFullYear() - birthDate.getFullYear();
-    let months = today.getMonth() - birthDate.getMonth();
-    let days = today.getDate() - birthDate.getDate();
-
-    if (days < 0) {
-        months--;
-        const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        days += lastMonth.getDate();
-    }
-    if (months < 0) {
-        years--;
-        months += 12;
-    }
-
-    let ageText = "";
-    if (years > 0) {
-        ageText = years + (years === 1 ? " ano" : " anos");
-        if (months > 0) ageText += " e " + months + (months === 1 ? " mês" : " meses");
-    } else if (months > 0) {
-        ageText = months + (months === 1 ? " mês" : " meses");
-        if (days > 0) ageText += " e " + days + (days === 1 ? " dia" : " dias");
-    } else {
-        ageText = days + (days === 1 ? " dia" : " dias");
-    }
-    targetInput.value = ageText;
-}
-
-/**
- * Handle Photo Preview
- */
-window.handlePhotoChange = function(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        const container = document.getElementById('photo-preview-container');
-        const preview = document.getElementById('photo-preview');
-        const label = container.parentElement.querySelector('.photo-upload-label');
-        const icon = container.parentElement.querySelector('i[data-lucide="camera"]');
-
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            container.style.display = 'block';
-            if (icon) icon.style.display = 'none';
-            label.innerText = 'Foto selecionada para envio';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-};
-
 async function openConsultaModal(pet_id) {
     const html = `
-        <form class="ajax-form" id="form-consulta" action="<?php echo SITE_URL; ?>/api/consultas/save">
+        <form class="ajax-form" id="form-consulta" action="<?php echo SITE_URL; ?>/api/consultas/save" enctype="multipart/form-data">
             <div class="modal-body-scroll">
                 <input type="hidden" name="pet_id" value="${pet_id}">
+                <input type="hidden" name="tutor_id" value="<?php echo $pet['tutor_id']; ?>">
                 <input type="hidden" name="nonce" value="<?php echo \Nonce::create('consulta_save'); ?>">
                 
                 <div class="form-grid-2">
@@ -439,6 +401,16 @@ async function openConsultaModal(pet_id) {
                         <input type="text" name="observacoes" class="form-control" placeholder="Anotações internas...">
                     </div>
                 </div>
+
+                <div class="mt-4">
+                    <h6 class="mb-3 d-flex align-items-center gap-2" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
+                        <i data-lucide="paperclip" class="icon-lucide icon-xs"></i> Anexos / Resultados de Exames
+                    </h6>
+                    <div id="attachments-container" class="mb-2"></div>
+                    <button type="button" class="btn-secondary-glass w-100 btn-sm" onclick="addAttachmentRow()" style="font-size: 11px; padding: 10px; border-radius: 10px;">
+                        <i data-lucide="plus" class="icon-lucide icon-xs"></i> Adicionar Novo Anexo
+                    </button>
+                </div>
             </div>
 
             <div class="modal-footer mt-4">
@@ -452,6 +424,87 @@ async function openConsultaModal(pet_id) {
     lucide.createIcons();
     if (UI.initMasks) UI.initMasks(document.getElementById('form-consulta'));
 }
+
+window.addAttachmentRow = function() {
+    const container = document.getElementById('attachments-container');
+    const rowId = 'row-' + Math.random().toString(36).substr(2, 9);
+    const div = document.createElement('div');
+    div.className = 'attachment-card mb-3 p-4 animate-fade-in';
+    div.id = rowId;
+
+    div.innerHTML = `
+        <div class="d-flex align-items-center gap-4 w-100">
+            <div class="attachment-icon-box d-none d-lg-flex" style="flex-shrink: 0;">
+                <i data-lucide="file-plus-2" style="width: 24px; height: 24px; color: var(--primary);"></i>
+            </div>
+            <div class="flex-grow-1 w-100">
+                <div class="row g-3 w-100 m-0">
+                    <div class="col-6 ps-0">
+                        <label class="label-tiny-caps-premium">Descrição do Arquivo</label>
+                        <input type="text" name="anexo_nome[]" class="form-control-premium w-100" placeholder="Ex: Resultado do Hemograma..." required>
+                    </div>
+                    <div class="col-6 pe-0">
+                        <label class="label-tiny-caps-premium">Arquivo Digital</label>
+                        <div class="file-upload-premium w-100">
+                            <span class="file-name-txt text-truncate">Selecionar documento...</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge-upload-hint">Upload</span>
+                                <i data-lucide="upload" style="width: 14px; height: 14px;"></i>
+                            </div>
+                            <input type="file" name="anexo_arquivo[]" onchange="updateFileNameLabel(this)" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="flex-shrink: 0;">
+                <button type="button" class="btn-remove-premium" onclick="document.getElementById('${rowId}').remove()" title="Remover Documento">
+                    <i data-lucide="x" style="width: 18px; height: 18px;"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+    if (window.lucide) lucide.createIcons({ root: div });
+};
+
+window.updateFileNameLabel = function(input) {
+    const label = input.parentElement.querySelector('.file-name-txt');
+    const card = input.closest('.attachment-card');
+    if (input.files && input.files[0]) {
+        label.innerText = input.files[0].name;
+        label.style.color = 'var(--primary)';
+        label.style.fontWeight = '800';
+        card.style.borderColor = 'var(--primary)';
+        card.style.background = 'rgba(var(--primary-rgb), 0.01)';
+    } else {
+        label.innerText = 'Selecionar documento...';
+        label.style.color = 'var(--text-muted)';
+        label.style.fontWeight = '600';
+    }
+};
+
+function updateAge(dateString, targetInput) {
+    if (!dateString) return;
+    const birthDate = new Date(dateString + 'T00:00:00');
+    const today = new Date();
+    let years = today.getFullYear() - birthDate.getFullYear();
+    let months = today.getMonth() - birthDate.getMonth();
+    let ageText = years + " anos e " + months + " meses";
+    targetInput.value = ageText;
+}
+
+window.handlePhotoChange = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        const container = document.getElementById('photo-preview-container');
+        const preview = document.getElementById('photo-preview');
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            container.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
 </script>
 
 <style>
@@ -498,6 +551,144 @@ async function openConsultaModal(pet_id) {
 .text-success-important { color: #10b981 !important; }
 .bg-white-01 { background: rgba(255,255,255,0.01); }
 .border-left-primary { border-left: 3px solid var(--primary); }
+
+.badge-attachment-premium {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(var(--primary-rgb), 0.05);
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    border-radius: 8px;
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+}
+.badge-attachment-premium:hover {
+    background: var(--primary);
+    color: #fff;
+    transform: translateY(-2px);
+}
+.btn-secondary-glass {
+    background: rgba(var(--primary-rgb), 0.05);
+    border: 1px dashed var(--primary);
+    color: var(--primary);
+    font-weight: 700;
+    transition: 0.3s;
+}
+.btn-secondary-glass:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    transform: translateY(-2px);
+}
+.attachment-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border-left: 5px solid transparent;
+}
+.attachment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    border-left-color: var(--primary);
+}
+.attachment-icon-box {
+    width: 54px;
+    height: 54px;
+    background: rgba(var(--primary-rgb), 0.06);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.label-tiny-caps-premium {
+    font-size: 10px;
+    font-weight: 850;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    display: block;
+}
+.form-control-premium {
+    height: 52px;
+    background: rgba(var(--primary-rgb), 0.01);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0 18px;
+    width: 100%;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-main);
+    transition: 0.3s;
+}
+.form-control-premium:focus {
+    background: var(--bg-card);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+}
+.file-upload-premium {
+    height: 52px;
+    background: rgba(var(--primary-rgb), 0.01);
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    cursor: pointer;
+    position: relative;
+    transition: 0.3s;
+}
+.file-upload-premium:hover {
+    background: rgba(var(--primary-rgb), 0.02);
+    border-color: var(--primary);
+}
+.file-upload-premium input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.file-name-txt {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+.badge-upload-hint {
+    font-size: 10px;
+    background: var(--primary);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-weight: 800;
+}
+.btn-remove-premium {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.05);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+.btn-remove-premium:hover {
+    background: #ef4444;
+    color: #fff;
+}
+.animate-fade-in {
+    animation: fadeInPremium 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes fadeInPremium {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
 
 .animate-slide-in {
     animation: slideIn 0.5s ease-out forwards;

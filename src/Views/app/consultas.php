@@ -1,5 +1,6 @@
 <?php
 /** @var array $consultas */
+/** @var array $tutores */
 /** @var array $pets */
 /** @var string $search */
 /** @var string $nonce_save */
@@ -8,7 +9,7 @@
 
 <div class="page-header d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 style="color: var(--primary); margin-bottom: 5px;">Agenda de Consultas</h2>
+        <h2 style="color: var(--primary); margin-bottom: 5px;">Agenda de Atendimentos</h2>
         <p style="color: var(--text-muted);">Acompanhamento de atendimentos agendados e concluídos.</p>
     </div>
     <button class="btn-primary" onclick="openConsultaModal()">
@@ -50,14 +51,15 @@
 </style>
 
 <script>
-// Global pets list for autocomplete
-const petsList = <?php echo json_encode($pets); ?>;
+// Global tutores and pets list
+const tutoresList = <?php echo json_encode($tutores); ?>;
+const petsList = <?php echo json_encode($pets ?? []); ?>;
 
 function openConsultaModal(data = null) {
     const isEdit = data !== null && data.id;
     
-    // Fallback in case petsList is somehow not ready
-    const localPets = typeof petsList !== 'undefined' ? petsList : [];
+    // Fallback in case lists are somehow not ready
+    const localTutores = typeof tutoresList !== 'undefined' ? tutoresList : [];
     
     const html = `
         <form class="ajax-form" id="form-consulta" action="<?php echo SITE_URL; ?>/api/consultas/save">
@@ -69,18 +71,26 @@ function openConsultaModal(data = null) {
                     <i data-lucide="calendar" class="icon-lucide icon-xs"></i> Dados do Agendamento
                 </h6>
                 
-                <div class="form-group mb-4">
-                    <label class="form-label">Paciente (Pet) *</label>
-                    <div class="search-input-box">
-                        <i data-lucide="dog" class="icon-lucide icon-sm" style="color: var(--primary);"></i>
-                        <input type="text" id="pet-search" class="form-control" placeholder="Busque o paciente..." value="${isEdit ? (data.pet_nome || '') : ''}" required autocomplete="off">
-                        <input type="hidden" id="pet_id" name="pet_id" value="${isEdit ? data.pet_id : ''}">
+                <div class="form-grid-2 mb-4">
+                    <div class="form-group">
+                        <label class="form-label">Paciente (Tutor)</label>
+                        <div class="search-input-box">
+                            <i data-lucide="user" class="icon-lucide icon-sm" style="color: var(--primary);"></i>
+                            <input type="text" id="tutor-search" class="form-control" placeholder="Busque por Nome ou CPF..." value="${isEdit ? (data.tutor_nome || '') : ''}" required autocomplete="off">
+                            <input type="hidden" id="tutor_id" name="tutor_id" value="${isEdit ? data.tutor_id : ''}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pet</label>
+                        <select name="pet_id" id="pet_id_select" class="form-control">
+                            <option value="">Selecione um tutor...</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="form-grid-2 mb-4">
                     <div class="form-group">
-                        <label class="form-label">Data e Hora *</label>
+                        <label class="form-label">Data e Hora</label>
                         <input type="datetime-local" name="data_consulta" class="form-control"
                                value="${(data && data.data_consulta) ? data.data_consulta.replace(' ', 'T').substring(0, 16) : '<?php echo date('Y-m-d\TH:i'); ?>'}" required>
                     </div>
@@ -96,7 +106,7 @@ function openConsultaModal(data = null) {
 
                 <div class="form-grid-2 mb-4">
                     <div class="form-group">
-                        <label class="form-label">Motivo da Visita *</label>
+                        <label class="form-label">Motivo da Visita</label>
                         <input type="text" name="motivo" class="form-control" value="${isEdit ? (data.motivo || '') : ''}" required placeholder="Ex: Vacinas, Check-up, Emergência...">
                     </div>
                     <div class="form-group">
@@ -105,41 +115,16 @@ function openConsultaModal(data = null) {
                     </div>
                 </div>
 
-                <h6 class="mb-3 mt-4 d-flex align-items-center gap-2" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
-                    <i data-lucide="stethoscope" class="icon-lucide icon-xs"></i> Prontuário & Evolução
-                </h6>
-                
-                <div class="form-group mb-4">
-                    <label class="form-label">Diagnóstico Clínico</label>
-                    <textarea name="diagnostico" class="form-control" rows="3" placeholder="Relato clínico...">${isEdit ? (data.diagnostico || '') : ''}</textarea>
-                </div>
-                
-                <div class="form-group mb-4">
-                    <label class="form-label">Prescrição Médica</label>
-                    <textarea name="prescricao" class="form-control" rows="3" placeholder="Receituário...">${isEdit ? (data.prescricao || '') : ''}</textarea>
-                </div>
-                
-                <div class="form-group mb-4">
-                    <label class="form-label">Anotações Internas (Não visível ao tutor)</label>
-                    <textarea name="observacoes" class="form-control" rows="2" placeholder="Notas internas...">${isEdit ? (data.observacoes || '') : ''}</textarea>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="form-label">Anexos / Imagens do Exame</label>
-                    <div class="modern-upload" style="border: 1px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; background: rgba(var(--primary-rgb), 0.02);">
-                        <label for="consulta-file" style="cursor: pointer; display: block;">
-                            <i data-lucide="paperclip" class="icon-lucide mb-2" style="width: 24px; height: 24px;"></i>
-                            <div class="small fw-700">Anexar documentos ou fotos...</div>
-                            <div class="text-muted" style="font-size: 11px;">PDF, JPG, PNG até 5MB</div>
-                        </label>
-                        <input type="file" id="consulta-file" name="anexo" accept="image/*,application/pdf" onchange="this.parentElement.querySelector('small').innerText = this.files[0].name" style="display: none;">
-                    </div>
-                </div>
             </div>
 
-            <div class="modal-footer mt-4">
-                <button type="button" class="btn-secondary" onclick="UI.closeModal()">Cancelar</button>
-                <button type="submit" class="btn-primary">${isEdit ? 'Atualizar Registro' : 'Salvar no Prontuário'}</button>
+            <div class="modal-footer mt-4 d-flex justify-content-between">
+                <div>
+                    ${isEdit ? `<button type="button" class="btn-danger" onclick="deleteConsulta(${data.id})">Excluir Agendamento</button>` : ''}
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn-secondary" onclick="UI.closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">${isEdit ? 'Atualizar Agendamento' : 'Criar agendamento'}</button>
+                </div>
             </div>
         </form>
     `;
@@ -150,16 +135,48 @@ function openConsultaModal(data = null) {
     // Iniciar Máscaras para os campos do modal
     if (UI.initMasks) UI.initMasks(document.getElementById('form-consulta'));
 
-    // ── Pet Autocomplete (floating, client-side data, escapes modal overflow) ──
+    // ── Tutor Autocomplete ──
     setupFloatingAutocomplete({
-        inputId: 'pet-search',
-        hiddenId: 'pet_id',
-        data: localPets,
-        searchKey: 'nome',
+        inputId: 'tutor-search',
+        hiddenId: 'tutor_id',
+        data: localTutores,
+        searchKey: 'search_string',
         displayKey: 'nome',
-        subKey: 'tutor_nome',
-        icon: 'dog'
+        subKey: 'cpf',
+        icon: 'user'
     });
+
+    // ── Pet Selection Logic ──
+    const tutorIdInput = document.getElementById('tutor_id');
+    const petSelect = document.getElementById('pet_id_select');
+
+    const updatePetSelect = (tutorId, selectedPetId = null) => {
+        petSelect.innerHTML = '<option value="">-- Selecione o Pet --</option>';
+        if (!tutorId) return;
+
+        const filtered = petsList.filter(p => p.tutor_id == tutorId);
+        if (filtered.length === 0) {
+            petSelect.innerHTML = '<option value="">Nenhum pet encontrado</option>';
+            return;
+        }
+
+        filtered.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.nome;
+            if (selectedPetId && p.id == selectedPetId) opt.selected = true;
+            petSelect.appendChild(opt);
+        });
+    };
+
+    tutorIdInput.addEventListener('change', function() {
+        updatePetSelect(this.value);
+    });
+
+    // Trigger update if hidden ID is already set (e.g. edit mode)
+    if (tutorIdInput.value) {
+        updatePetSelect(tutorIdInput.value, isEdit ? data.pet_id : null);
+    }
 }
 
 // ── Calendar Operations ──
@@ -175,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const events = consultas.map(c => ({
         id: c.id,
-        title: `${c.pet_nome} (${c.motivo || 'Rotina'})`,
+        title: `${c.tutor_nome}${c.pet_nome ? ' (' + c.pet_nome + ')' : ''}`,
         start: c.data_consulta.replace(' ', 'T'),
         backgroundColor: statusColors[c.status] || '#6366f1',
         extendedProps: c

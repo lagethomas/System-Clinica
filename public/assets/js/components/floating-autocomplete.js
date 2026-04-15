@@ -119,8 +119,12 @@ function setupFloatingAutocomplete(config) {
             el.addEventListener('click', function () {
                 var id = this.getAttribute('data-id');
                 var name = this.getAttribute('data-name');
-                if (hiddenInput) hiddenInput.value = id;
+                if (hiddenInput) {
+                    hiddenInput.value = id;
+                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
                 input.value = name;
+                input.dispatchEvent(new Event('change', { bubbles: true }));
                 hideDropdown();
             });
         });

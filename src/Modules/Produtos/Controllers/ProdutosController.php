@@ -17,10 +17,12 @@ class ProdutosController extends Controller {
         $company_id = Auth::companyId();
 
         $produtos = Produto::allByCompany($company_id);
+        $categorias = \App\Modules\Produtos\Models\Categoria::allByCompany($company_id);
 
         $this->render('Modules/Produtos/Views/index', [
             'title' => 'Gerenciamento de Produtos',
             'produtos' => $produtos,
+            'categorias' => $categorias,
             'nonce_save' => Nonce::create('produto_save'),
             'nonce_delete' => Nonce::create('produto_delete')
         ]);
@@ -39,6 +41,7 @@ class ProdutosController extends Controller {
         $data = [
             'company_id' => $company_id,
             'nome' => $_POST['nome'] ?? '',
+            'categoria_id' => !empty($_POST['categoria_id']) ? (int)$_POST['categoria_id'] : null,
             'descricao' => $_POST['descricao'] ?? null,
             'preco' => str_replace(',', '.', $_POST['preco'] ?? '0'),
             'preco_promocional' => !empty($_POST['preco_promocional']) ? str_replace(',', '.', $_POST['preco_promocional']) : null,
@@ -137,6 +140,19 @@ class ProdutosController extends Controller {
         }
 
         $produtos = Produto::allPublicByCompany((int)$company['id']);
+        $categorias = \App\Modules\Produtos\Models\Categoria::allByCompany((int)$company['id']);
+
+        // Group products by category
+        $produtos_por_categoria = [];
+        $sem_categoria = [];
+
+        foreach ($produtos as $p) {
+            if ($p['categoria_id']) {
+                $produtos_por_categoria[$p['categoria_id']][] = $p;
+            } else {
+                $sem_categoria[] = $p;
+            }
+        }
 
         // Client Data (Tutor)
         $client_data = null;
@@ -148,6 +164,9 @@ class ProdutosController extends Controller {
             'title'   => 'Loja - ' . $company['name'],
             'company' => $company,
             'produtos' => $produtos,
+            'categorias' => $categorias,
+            'produtos_por_categoria' => $produtos_por_categoria,
+            'sem_categoria' => $sem_categoria,
             'client_data' => $client_data
         ], false);
     }

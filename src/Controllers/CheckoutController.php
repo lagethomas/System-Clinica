@@ -219,11 +219,40 @@ class CheckoutController extends Controller {
                         }
                     }
                 }
-                // 2. Store Order
+                    // 2. Store Order
                 else if (strpos($ref, 'PEDLOJA-') === 0) {
                     $order_id = (int)str_replace('PEDLOJA-', '', $ref);
+                    
+                    // Mark order payment as paid
                     $stmt = $pdo->prepare("UPDATE cp_pedidos_loja SET payment_status = 'paid', payment_id = ? WHERE id = ? AND payment_status != 'paid'");
                     $stmt->execute([$payment_id, $order_id]);
+
+                    if ($stmt->rowCount() > 0) {
+                        // Add to financial module
+                        $order = \App\Core\Database::fetch("SELECT * FROM cp_pedidos_loja WHERE id = ?", [$order_id]);
+                        if ($order) {
+                            $company_id = (int)$order['company_id'];
+                            $descFin = "Pedido Loja #$order_id - " . $order['cliente_nome'];
+                            
+                            // Check for duplicates
+                            $exists = \App\Core\Database::fetch("SELECT id FROM cp_financeiro WHERE company_id = ? AND descricao = ?", [$company_id, $descFin]);
+                            
+                            if (!$exists) {
+                                \App\Core\Database::insert('cp_financeiro', [
+                                    'company_id'       => $company_id,
+                                    'user_id'          => 0, // System automated
+                                    'tutor_id'         => $order['tutor_id'] ?: null,
+                                    'descricao'        => $descFin,
+                                    'valor'            => (float)$order['total'],
+                                    'tipo'             => 'entrada',
+                                    'categoria'        => 'Venda Loja',
+                                    'metodo_pagamento' => 'Mercado Pago'
+                                ]);
+                                
+                                \App\Helpers\Logger::log('store_financial_entry', "Lançamento automático via Webhook (MP) referente ao pedido #$order_id");
+                            }
+                        }
+                    }
                 }
             }
         }

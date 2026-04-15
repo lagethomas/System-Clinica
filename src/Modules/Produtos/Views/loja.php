@@ -387,6 +387,51 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             border-color: var(--primary);
         }
 
+        /* Category Navigation */
+        .category-nav {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 40px;
+            scrollbar-width: none;
+        }
+        .category-nav::-webkit-scrollbar { display: none; }
+        
+        .cat-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px 24px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        .cat-pill:hover, .cat-pill.active {
+            background: rgba(var(--primary-rgb), 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .category-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .category-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .clube-banner { padding: 32px 20px; }
@@ -492,60 +537,97 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
                 <p>Volte em breve para conferir nossas novidades!</p>
             </div>
         <?php else: ?>
-            <div style="margin-bottom:30px;">
-                <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px;">Nossos Produtos</h2>
-                <p style="font-size:14px;color:var(--text-muted);"><?php echo count($produtos); ?> produto<?php echo count($produtos) !== 1 ? 's' : ''; ?> disponíve<?php echo count($produtos) !== 1 ? 'is' : 'l'; ?></p>
-            </div>
-
-            <div class="products-grid" id="products-grid">
-                <?php foreach ($produtos as $p): ?>
-                    <?php
-                        $preco = (float)$p['preco'];
-                        $precoPromo = !empty($p['preco_promocional']) ? (float)$p['preco_promocional'] : null;
-                        $emPromocao = (bool)$p['em_promocao'];
-                        $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
-                        $singleUrl = $SITE_URL . '/' . $company['slug'] . '/loja/' . $p['id'];
-                    ?>
-                    <a href="<?php echo $singleUrl; ?>" class="product-card">
-                        <?php if ($emPromocao): ?>
-                            <div class="promo-badge">Clube</div>
+            
+            <!-- Category Navigation -->
+            <?php if (!empty($categorias)): ?>
+                <div class="category-nav">
+                    <a href="javascript:void(0)" onclick="filterCategory('all')" class="cat-pill active" id="pill-all">Todos</a>
+                    <?php foreach ($categorias as $cat): ?>
+                        <?php if (isset($produtos_por_categoria[$cat['id']])): ?>
+                            <a href="javascript:void(0)" onclick="filterCategory(<?php echo $cat['id']; ?>)" class="cat-pill" id="pill-<?php echo $cat['id']; ?>">
+                                <?php echo htmlspecialchars($cat['nome']); ?>
+                            </a>
                         <?php endif; ?>
+                    <?php endforeach; ?>
+                    <?php if (!empty($sem_categoria)): ?>
+                        <a href="javascript:void(0)" onclick="filterCategory('other')" class="cat-pill" id="pill-other">Diversos</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
 
-                        <div class="product-image">
-                            <?php if (!empty($p['capa'])): ?>
-                                <img src="<?php echo $SITE_URL . '/' . ltrim($p['capa'], '/'); ?>"
-                                     alt="<?php echo htmlspecialchars($p['nome']); ?>"
-                                     loading="lazy">
+            <?php
+            function renderProductCard($p, $company, $SITE_URL) {
+                $preco = (float)$p['preco'];
+                $precoPromo = !empty($p['preco_promocional']) ? (float)$p['preco_promocional'] : null;
+                $emPromocao = (bool)$p['em_promocao'];
+                $singleUrl = $SITE_URL . '/' . $company['slug'] . '/loja/' . $p['id'];
+                ?>
+                <a href="<?php echo $singleUrl; ?>" class="product-card">
+                    <?php if ($emPromocao): ?>
+                        <div class="promo-badge">Clube</div>
+                    <?php endif; ?>
+
+                    <div class="product-image">
+                        <?php if (!empty($p['capa'])): ?>
+                            <img src="<?php echo $SITE_URL . '/' . ltrim($p['capa'], '/'); ?>" alt="<?php echo htmlspecialchars($p['nome']); ?>" loading="lazy">
+                        <?php else: ?>
+                            <div class="product-image-placeholder">
+                                <i data-lucide="image" style="width:40px;height:40px;opacity:0.2;"></i>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="product-info">
+                        <h3 class="product-name"><?php echo htmlspecialchars($p['nome']); ?></h3>
+                        <p class="product-desc">
+                            <?php echo htmlspecialchars($p['descricao'] ?: 'Explore este produto incrível disponível para você.'); ?>
+                        </p>
+
+                        <div class="price-section">
+                            <?php if ($emPromocao && $precoPromo): ?>
+                                <span class="price-original"><span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-right:4px;">Preço normal</span>R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
+                                <span class="price-current promo"><span style="font-size:10px;font-weight:700;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 6px;border-radius:4px;margin-right:6px;text-transform:uppercase;letter-spacing:0.5px;">Cliente clube</span>R$ <?php echo number_format($precoPromo, 2, ',', '.'); ?></span>
                             <?php else: ?>
-                                <div class="product-image-placeholder">
-                                    <i data-lucide="image" style="width:40px;height:40px;opacity:0.2;"></i>
-                                </div>
+                                <span class="price-current">R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
                             <?php endif; ?>
                         </div>
 
-                        <div class="product-info">
-                            <h3 class="product-name"><?php echo htmlspecialchars($p['nome']); ?></h3>
-                            <p class="product-desc">
-                                <?php echo htmlspecialchars($p['descricao'] ?: 'Explore este produto incrível disponível para você.'); ?>
-                            </p>
+                        <div class="btn-ver-produto">
+                            <i data-lucide="shopping-cart" style="width:16px;height:16px;"></i>
+                            Ver Produto
+                        </div>
+                    </div>
+                </a>
+                <?php
+            }
+            ?>
 
-                            <div class="price-section">
-                                <?php if ($emPromocao && $precoPromo): ?>
-                                    <span class="price-original"><span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-right:4px;">Preço normal</span>R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
-                                    <span class="price-current promo"><span style="font-size:10px;font-weight:700;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 6px;border-radius:4px;margin-right:6px;text-transform:uppercase;letter-spacing:0.5px;">Cliente clube</span>R$ <?php echo number_format($precoPromo, 2, ',', '.'); ?></span>
-                                <?php else: ?>
-                                    <span class="price-current">R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="btn-ver-produto">
-                                <i data-lucide="shopping-cart" style="width:16px;height:16px;"></i>
-                                Ver Produto
+            <div id="store-content">
+                <?php foreach ($categorias as $cat): ?>
+                    <?php if (isset($produtos_por_categoria[$cat['id']])): ?>
+                        <div class="category-group" id="group-<?php echo $cat['id']; ?>">
+                            <h2 class="category-title"><?php echo htmlspecialchars($cat['nome']); ?></h2>
+                            <div class="products-grid mb-5">
+                                <?php foreach ($produtos_por_categoria[$cat['id']] as $p): ?>
+                                    <?php renderProductCard($p, $company, $SITE_URL); ?>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-                    </a>
+                    <?php endif; ?>
                 <?php endforeach; ?>
+
+                <?php if (!empty($sem_categoria)): ?>
+                    <div class="category-group" id="group-other">
+                        <h2 class="category-title">Diversos</h2>
+                        <div class="products-grid mb-5">
+                            <?php foreach ($sem_categoria as $p): ?>
+                                <?php renderProductCard($p, $company, $SITE_URL); ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
+
         <?php endif; ?>
 
     </div><!-- /container -->
@@ -717,6 +799,33 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
 
     let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
     let deliveryMethod = 'delivery';
+
+    function filterCategory(catId) {
+        const groups = document.querySelectorAll('.category-group');
+        const pills = document.querySelectorAll('.cat-pill');
+        
+        // Update pills
+        pills.forEach(p => p.classList.remove('active'));
+        if (catId === 'all') document.getElementById('pill-all').classList.add('active');
+        else if (catId === 'other') document.getElementById('pill-other').classList.add('active');
+        else document.getElementById('pill-' + catId).classList.add('active');
+
+        // Show/Hide groups
+        groups.forEach(g => {
+            if (catId === 'all') {
+                g.style.display = 'block';
+            } else {
+                if (g.id === 'group-' + catId) {
+                    g.style.display = 'block';
+                } else {
+                    g.style.display = 'none';
+                }
+            }
+        });
+
+        // Scroll to top of content
+        document.getElementById('store-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
     function removeItemFromCart(key) {
         cart = cart.filter(it => it.uniqueKey !== key);
