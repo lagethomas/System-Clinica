@@ -1,7 +1,7 @@
 <div class="page-header">
     <div class="page-header-info">
-        <h2>Olá, <?php echo explode(' ', $tutor['nome'])[0]; ?>! 👋</h2>
-        <p>Bem-vindo à sua área exclusiva na <?php echo htmlspecialchars($platform_settings['system_name'] ?? 'Clínica'); ?>.</p>
+        <h2>Olá, <?php echo !empty($tutor['nome']) ? explode(' ', $tutor['nome'])[0] : 'Tutor'; ?>! 👋</h2>
+        <p>Bem-vindo à sua área exclusiva na <?php echo htmlspecialchars($system_name ?? 'nossa clínica'); ?>.</p>
     </div>
 </div>
 
@@ -121,7 +121,7 @@
             <div class="fw-700">Pedido #<?php echo $po['id']; ?> — R$ <?php echo number_format((float)$po['total'], 2, ',', '.'); ?></div>
             <div class="small" style="color:#f59e0b;font-weight:700;">⏳ Expira em: <?php echo $timeStr; ?></div>
         </div>
-        <a href="<?php echo SITE_URL . '/' . ($_SESSION['company_slug'] ?? '') . '/loja'; ?>" class="btn-primary" style="background:#f59e0b;border-color:#f59e0b;color:#000;white-space:nowrap;font-size:12px;">
+        <a href="<?php echo SITE_URL . '/' . ($_SESSION['company_slug'] ?? '') . '/clube-pet'; ?>" class="btn-primary" style="background:#f59e0b;border-color:#f59e0b;color:#000;white-space:nowrap;font-size:12px;">
             Pagar Agora
         </a>
     </div>

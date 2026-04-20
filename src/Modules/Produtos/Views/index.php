@@ -7,17 +7,17 @@
 <div class="page-header">
     <div>
         <h2 class="page-title">Gerenciamento de Produtos</h2>
-        <p class="text-muted">Cadastre e configure os produtos da sua loja online.</p>
+        <p class="text-muted">Cadastre e configure os produtos do seu ClubePet+.</p>
     </div>
     <div class="page-header-actions">
         <a href="<?php echo SITE_URL; ?>/app/produtos/categorias" class="btn-primary-glass">
             <i data-lucide="tag" class="icon-lucide"></i> Categorias
         </a>
-        <a href="<?php echo SITE_URL; ?>/app/loja/pedidos" class="btn-primary-glass">
+        <a href="<?php echo SITE_URL; ?>/app/clube-pet/pedidos" class="btn-primary-glass">
             <i data-lucide="shopping-bag" class="icon-lucide"></i> Gerenciar Pedidos
         </a>
-        <a href="<?php echo SITE_URL; ?>/<?php echo $_SESSION['company_slug'] ?? 'loja'; ?>/loja" target="_blank" class="btn-secondary">
-            <i data-lucide="external-link" class="icon-lucide"></i> Ver Loja
+        <a href="<?php echo SITE_URL; ?>/<?php echo $_SESSION['company_slug'] ?? 'clube-pet'; ?>/clube-pet" target="_blank" class="btn-secondary">
+            <i data-lucide="external-link" class="icon-lucide"></i> Ver ClubePet+
         </a>
         <button class="btn-primary" onclick="openProdutoModal()">
             <i data-lucide="plus" class="icon-lucide"></i> Novo Produto
@@ -195,7 +195,7 @@ function openProdutoModal(data = null) {
 
                 <div class="form-group mb-3 px-1">
                     <div class="d-flex align-items-center justify-content-between">
-                        <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">Produto Ativo/Visível na Loja</span>
+                        <span style="font-size: 14px; font-weight: 600; color: var(--text-main);">Produto Ativo/Visível no ClubePet+</span>
                         <label class="switch">
                             <input type="checkbox" name="status" value="1" ${!isEdit || data.status == 1 ? 'checked' : ''}>
                             <span class="slider round"></span>

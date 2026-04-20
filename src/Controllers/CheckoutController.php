@@ -82,7 +82,7 @@ class CheckoutController extends Controller {
         if ($response === false) {
             $this->logMercadoPagoError("Erro de cURL na requisição ao Mercado Pago.", ["curl_error" => curl_error($ch)]);
         }
-        curl_close($ch);
+        // curl_close is no longer strictly needed in PHP 8+
         
         $preference = json_decode($response, true);
 
@@ -185,7 +185,7 @@ class CheckoutController extends Controller {
                 "Authorization: Bearer " . $mp_token
             ]);
             $response = curl_exec($ch);
-            curl_close($ch);
+            // curl_close is no longer strictly needed in PHP 8+
             
             $payment_info = json_decode($response, true);
 
@@ -228,11 +228,17 @@ class CheckoutController extends Controller {
                     $stmt->execute([$payment_id, $order_id]);
 
                     if ($stmt->rowCount() > 0) {
+                        // Apply Cashback Logic
+                        try {
+                            require_once __DIR__ . '/../Modules/Cashback/Helpers/CashbackHelper.php';
+                            \App\Modules\Cashback\Helpers\CashbackHelper::applyForOrder($order_id);
+                        } catch (\Exception $e) {}
+
                         // Add to financial module
                         $order = \App\Core\Database::fetch("SELECT * FROM cp_pedidos_loja WHERE id = ?", [$order_id]);
                         if ($order) {
                             $company_id = (int)$order['company_id'];
-                            $descFin = "Pedido Loja #$order_id - " . $order['cliente_nome'];
+                            $descFin = "Pedido ClubePet+ #$order_id - " . $order['cliente_nome'];
                             
                             // Check for duplicates
                             $exists = \App\Core\Database::fetch("SELECT id FROM cp_financeiro WHERE company_id = ? AND descricao = ?", [$company_id, $descFin]);
@@ -245,7 +251,7 @@ class CheckoutController extends Controller {
                                     'descricao'        => $descFin,
                                     'valor'            => (float)$order['total'],
                                     'tipo'             => 'entrada',
-                                    'categoria'        => 'Venda Loja',
+                                    'categoria'        => 'Venda ClubePet+',
                                     'metodo_pagamento' => 'Mercado Pago'
                                 ]);
                                 

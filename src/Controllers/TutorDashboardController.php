@@ -62,6 +62,7 @@ class TutorDashboardController extends Controller {
         ]);
     }
 
+
     public function petPerfil($id): void {
         Auth::requireRole('tutor');
         $company_id = Auth::companyId();

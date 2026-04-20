@@ -156,12 +156,12 @@ class ProdutosController extends Controller {
 
         // Client Data (Tutor)
         $client_data = null;
-        if (\Auth::isLoggedIn() && \Auth::tutorId()) {
-            $client_data = Database::fetch("SELECT * FROM cp_tutores WHERE id = ?", [\Auth::tutorId()]);
+        if (Auth::isLoggedIn() && Auth::tutorId()) {
+            $client_data = Database::fetch("SELECT * FROM cp_tutores WHERE id = ?", [Auth::tutorId()]);
         }
 
         $this->render('Modules/Produtos/Views/loja', [
-            'title'   => 'Loja - ' . $company['name'],
+            'title'   => 'ClubePet+ - ' . $company['name'],
             'company' => $company,
             'produtos' => $produtos,
             'categorias' => $categorias,
@@ -183,14 +183,14 @@ class ProdutosController extends Controller {
 
         $produto = Produto::find((int)$id);
         if (!$produto || $produto['company_id'] != $company['id'] || !$produto['status']) {
-            header("Location: " . SITE_URL . '/' . $slug . '/loja');
+            header("Location: " . SITE_URL . '/' . $slug . '/clube-pet');
             exit;
         }
 
         // Client Data (Tutor)
         $client_data = null;
-        if (\Auth::isLoggedIn() && \Auth::tutorId()) {
-            $client_data = Database::fetch("SELECT * FROM cp_tutores WHERE id = ?", [\Auth::tutorId()]);
+        if (Auth::isLoggedIn() && Auth::tutorId()) {
+            $client_data = Database::fetch("SELECT * FROM cp_tutores WHERE id = ?", [Auth::tutorId()]);
         }
 
         $this->render('Modules/Produtos/Views/produto_single', [
@@ -247,7 +247,7 @@ class ProdutosController extends Controller {
      */
     public function publicCreateOrder(): void {
         // Force authentication for checkout
-        if (!\Auth::isLoggedIn() || !\Auth::tutorId()) {
+        if (!Auth::isLoggedIn() || !Auth::tutorId()) {
             $this->jsonResponse(['success' => false, 'message' => 'Autenticação necessária para finalizar a compra.'], 401);
             return;
         }
@@ -279,27 +279,64 @@ class ProdutosController extends Controller {
             $total += $frete;
         }
 
-        $orderId = Database::insert('cp_pedidos_loja', [
-            'company_id'       => $company_id,
-            'tutor_id'         => \Auth::tutorId(), // Link to logged in client
-            'cliente_nome'     => $data['cliente_nome'],
-            'cliente_telefone' => $data['cliente_telefone'],
-            'zip_code'         => $data['zip_code'] ?? null,
-            'neighborhood'     => $data['neighborhood'] ?? null,
-            'address'          => $data['address'] ?? null,
-            'city'             => $data['city'] ?? null,
-            'state'            => $data['state'] ?? null,
-            'number'           => $data['number'] ?? null,
-            'complement'       => $data['complement'] ?? null,
-            'tipo'             => $data['tipo'] ?? 'pickup',
-            'payment_mode'     => $data['payment_mode'] ?? 'delivery',
-            'observacoes'      => $data['observacoes'] ?? null,
-            'total'            => $total,
-            'frete'            => $frete,
-            'itens_json'       => json_encode($data['itens'], JSON_UNESCAPED_UNICODE),
-            'status'           => 'pendente',
-            'payment_status'   => 'pending'
-        ]);
+        $cashback_used = (float)($data['cashback_used'] ?? 0);
+        
+        // 1. Validate Cashback
+        if ($cashback_used > 0) {
+            $tutor = Database::fetch("SELECT cashback_balance FROM cp_tutores WHERE id = ?", [Auth::tutorId()]);
+            if ($cashback_used > (float)$tutor['cashback_balance']) {
+                $this->jsonResponse(['success' => false, 'message' => 'Saldo cashback insuficiente.'], 400);
+                return;
+            }
+            if ($cashback_used > $total) $cashback_used = $total;
+            $total -= $cashback_used;
+        }
+
+        $db = Database::getInstance();
+        $db->beginTransaction();
+
+        try {
+            $orderId = Database::insert('cp_pedidos_loja', [
+                'company_id'       => $company_id,
+                'tutor_id'         => Auth::tutorId(),
+                'cliente_nome'     => $data['cliente_nome'],
+                'cliente_telefone' => $data['cliente_telefone'],
+                'zip_code'         => $data['zip_code'] ?? null,
+                'neighborhood'     => $data['neighborhood'] ?? null,
+                'address'          => $data['address'] ?? null,
+                'city'             => $data['city'] ?? null,
+                'state'            => $data['state'] ?? null,
+                'number'           => $data['number'] ?? null,
+                'complement'       => $data['complement'] ?? null,
+                'tipo'             => $data['tipo'] ?? 'pickup',
+                'payment_mode'     => $data['payment_mode'] ?? 'delivery',
+                'observacoes'      => $data['observacoes'] ?? null,
+                'total'            => $total,
+                'frete'            => $frete,
+                'cashback_used'    => $cashback_used,
+                'itens_json'       => json_encode($data['itens'], JSON_UNESCAPED_UNICODE),
+                'status'           => 'pendente',
+                'payment_status'   => 'pending'
+            ]);
+
+            if ($cashback_used > 0) {
+                Database::query("UPDATE cp_tutores SET cashback_balance = cashback_balance - ? WHERE id = ?", [$cashback_used, Auth::tutorId()]);
+                Database::insert('cp_cashback_logs', [
+                    'company_id'  => $company_id,
+                    'tutor_id'    => Auth::tutorId(),
+                    'amount'      => $cashback_used,
+                    'type'        => 'debit',
+                    'source'      => 'order',
+                    'description' => "Uso de saldo no pedido #$orderId"
+                ]);
+            }
+
+            $db->commit();
+        } catch (\Exception $e) {
+            $db->rollBack();
+            $this->jsonResponse(['success' => false, 'message' => 'Erro ao processar pedido: ' . $e->getMessage()], 500);
+            return;
+        }
 
         if (!$orderId) {
             $this->jsonResponse(['success' => false, 'message' => 'Erro ao salvar pedido no banco'], 500);
@@ -312,7 +349,7 @@ class ProdutosController extends Controller {
             $company_id,
             '🛒 Novo Pedido #' . $orderId,
             'De: ' . ($data['cliente_nome'] ?? 'Cliente') . ' — R$ ' . number_format($total, 2, ',', '.') . ' — ' . $payLabel,
-            '/app/loja/pedidos',
+            '/app/clube-pet/pedidos',
             'info'
         );
 
@@ -331,7 +368,7 @@ class ProdutosController extends Controller {
         $response = [
             'success'  => true,
             'order_id' => $orderId,
-            'tracking_url' => SITE_URL . '/' . $company['slug'] . '/loja/confirmacao/' . $orderId
+            'tracking_url' => SITE_URL . '/' . $company['slug'] . '/clube-pet/confirmacao/' . $orderId
         ];
 
         // Mercado Pago Integration
@@ -357,9 +394,9 @@ class ProdutosController extends Controller {
                 ],
                 "external_reference" => "PEDLOJA-" . $orderId,
                 "back_urls" => [
-                    "success" => SITE_URL . '/' . $company['slug'] . '/loja/checkout/success?order_id=' . $orderId,
-                    "failure" => SITE_URL . '/' . $company['slug'] . '/loja/checkout/failure?order_id=' . $orderId,
-                    "pending" => SITE_URL . '/' . $company['slug'] . '/loja/checkout/pending?order_id=' . $orderId
+                    "success" => SITE_URL . '/' . $company['slug'] . '/clube-pet/checkout/success?order_id=' . $orderId,
+                    "failure" => SITE_URL . '/' . $company['slug'] . '/clube-pet/checkout/failure?order_id=' . $orderId,
+                    "pending" => SITE_URL . '/' . $company['slug'] . '/clube-pet/checkout/pending?order_id=' . $orderId
                 ],
                 "auto_return" => "approved",
                 "notification_url" => SITE_URL . "/api/webhook/mercadopago?cid=" . $company_id
@@ -375,7 +412,7 @@ class ProdutosController extends Controller {
             ]);
 
             $mp_res = curl_exec($ch);
-            curl_close($ch);
+            // curl_close is redundant in PHP 8+
             $preference = json_decode($mp_res, true);
 
             if (isset($preference['id'])) {
@@ -393,8 +430,8 @@ class ProdutosController extends Controller {
      * Admin: Store Orders Management
      */
     public function adminPedidos(): void {
-        \Auth::requireLogin();
-        $company_id = \Auth::companyId();
+        Auth::requireLogin();
+        $company_id = Auth::companyId();
 
         // Fetch orders by status
         $sql = "SELECT p.*, t.nome as tutor_nome 
@@ -420,8 +457,8 @@ class ProdutosController extends Controller {
      * API: Update Order Status
      */
     public function updateOrderStatus(): void {
-        \Auth::requireLogin();
-        $company_id = \Auth::companyId();
+        Auth::requireLogin();
+        $company_id = Auth::companyId();
         $user_id = (int)($_SESSION['user_id'] ?? 0);
 
         $id = $_POST['id'] ?? null;
@@ -452,7 +489,7 @@ class ProdutosController extends Controller {
         if ($updated) {
             // Se o status for 'entregue', adiciona ao financeiro (se ainda não existir)
             if ($status === 'entregue') {
-                $descFin = "Pedido Loja #$id - " . $order['cliente_nome'];
+                $descFin = "Pedido ClubePet+ #$id - " . $order['cliente_nome'];
                 
                 // Check if already in financial to prevent duplicates
                 $exists = Database::fetch("SELECT id FROM cp_financeiro WHERE company_id = ? AND descricao = ?", [$company_id, $descFin]);
@@ -465,15 +502,21 @@ class ProdutosController extends Controller {
                         'descricao'        => $descFin,
                         'valor'            => (float)$order['total'],
                         'tipo'             => 'entrada',
-                        'categoria'        => 'Venda Loja',
+                        'categoria'        => 'Venda ClubePet+',
                         'metodo_pagamento' => ($order['payment_mode'] === 'online') ? 'Online' : 'Dinheiro/Cartão'
                     ]);
                     
-                    \App\Helpers\Logger::log('store_financial_entry', "Lançamento automático de R$ " . number_format((float)$order['total'], 2, ',', '.') . " referente ao pedido #$id");
+                    Logger::log('store_financial_entry', "Lançamento automático de R$ " . number_format((float)$order['total'], 2, ',', '.') . " referente ao pedido #$id");
+
+                    // Apply Cashback Logic
+                    try {
+                        require_once __DIR__ . '/../../Cashback/Helpers/CashbackHelper.php';
+                        \App\Modules\Cashback\Helpers\CashbackHelper::applyForOrder((int)$id);
+                    } catch (\Exception $e) {}
                 }
             }
 
-            \App\Helpers\Logger::log('store_order_status', "Status do pedido #$id alterado para $status");
+            Logger::log('store_order_status', "Status do pedido #$id alterado para $status");
             $this->jsonResponse(['success' => true, 'message' => 'Status atualizado']);
         } else {
             $this->jsonResponse(['success' => false, 'message' => 'Erro ao atualizar status'], 500);

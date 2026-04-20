@@ -108,7 +108,7 @@ $router->add('POST', '/api/produtos/save',   ['controller' => 'App\Modules\Produ
 $router->add('POST', '/api/produtos/delete', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'delete',  'middlewares' => [$auth]]);
 $router->add('GET',  '/api/produtos/details', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'details', 'middlewares' => [$auth]]);
 // Specific admin routes MUST come before wildcard /{slug}/loja routes
-$router->add('GET',  '/app/loja/pedidos',          ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'adminPedidos', 'middlewares' => [$auth]]);
+$router->add('GET',  '/app/clube-pet/pedidos',          ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'adminPedidos', 'middlewares' => [$auth]]);
 
 // --- Categorias de Produtos ---
 $router->add('GET',  '/app/produtos/categorias',        ['controller' => 'App\Modules\Produtos\Controllers\CategoriasController', 'method' => 'index',  'middlewares' => [$auth]]);
@@ -119,13 +119,21 @@ $router->add('POST', '/api/pedidos/update-status', ['controller' => 'App\Modules
 $router->add('POST', '/api/pedidos/public-create', ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'publicCreateOrder']);
 $router->add('GET',  '/api/public-search-client',  ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'publicSearchClient']);
 // Wildcard slug routes (after specific routes)
-$router->add('GET',  '/{slug}/loja',         ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'loja']);
-$router->add('GET',  '/{slug}/loja/{id}',    ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'single']);
+$router->add('GET',  '/{slug}/clube-pet',         ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'loja']);
+$router->add('GET',  '/{slug}/clube-pet/{id}',    ['controller' => 'App\Modules\Produtos\Controllers\ProdutosController', 'method' => 'single']);
 
 // --- Portal do Tutor ---
 $router->add('GET', '/app/tutor/dashboard', ['controller' => 'TutorDashboardController', 'method' => 'index', 'middlewares' => [$auth]]);
 $router->add('GET', '/app/tutor/pet/{id}', ['controller' => 'TutorDashboardController', 'method' => 'petPerfil', 'middlewares' => [$auth]]);
 $router->add('GET', '/app/tutor/minhas-compras', ['controller' => 'TutorDashboardController', 'method' => 'minhasCompras', 'middlewares' => [$auth]]);
+$router->add('GET', '/app/tutor/cashback',       ['controller' => 'App\Modules\Cashback\Controllers\CashbackController', 'method' => 'tutorIndex', 'middlewares' => [$auth]]);
+$router->add('POST', '/api/cashback/withdrawal/request', ['controller' => 'App\Modules\Cashback\Controllers\CashbackController', 'method' => 'requestWithdrawal', 'middlewares' => [$auth]]);
+
+// --- Admin Cashback ---
+$router->add('GET', '/app/admin/cashback/saques', ['controller' => 'App\Modules\Cashback\Controllers\CashbackController', 'method' => 'adminWithdrawals']);
+$router->add('POST', '/api/cashback/withdrawal/mark-paid', ['controller' => 'App\Modules\Cashback\Controllers\CashbackController', 'method' => 'markAsPaid']);
+$router->add('POST', '/api/cashback/loan/request', ['controller' => 'App\Modules\Cashback\Controllers\CashbackController', 'method' => 'requestLoan']);
+$router->add('POST', '/api/cashback/loan/process', ['controller' => 'App\Modules\Cashback\Controllers\CashbackController', 'method' => 'processLoan']);
 
 // --- SaaS Slug Route (Keep this at the very end!) ---
 $router->add('GET',  '/{slug}',       ['controller' => 'LoginController', 'method' => 'companyLogin']);

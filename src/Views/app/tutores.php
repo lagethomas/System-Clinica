@@ -23,6 +23,7 @@
                     <th>Nome / Localização</th>
                     <th>CPF / Telefone</th>
                     <th>E-mail</th>
+                    <th>Crédito</th>
                     <th class="text-right" style="width: 150px;">Ações</th>
                 </tr>
             </thead>
@@ -45,6 +46,9 @@
                                 </div>
                             </td>
                             <td class="text-muted"><?php echo htmlspecialchars($t['email'] ?: '-'); ?></td>
+                            <td>
+                                <span class="fw-800 text-primary">R$ <?php echo number_format((float)($t['credit_limit'] ?? 0), 2, ',', '.'); ?></span>
+                            </td>
                             <td class="text-right">
                                 <div class="d-flex justify-content-end gap-1">
                                     <a href="<?php echo SITE_URL; ?>/app/tutores/perfil/<?php echo $t['id']; ?>" class="btn-user-action" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2); display: flex; align-items: center; justify-content: center; text-decoration: none;" title="Ver Detalhes">
@@ -175,9 +179,15 @@ function openTutorModal(data = null) {
                     </div>
                 </div>
 
-                <div class="form-group mb-4">
-                    <label class="form-label">WhatsApp *</label>
-                    <input type="text" name="telefone" class="form-control mask-phone" value="${isEdit ? (data.telefone || '') : ''}" required placeholder="(00) 00000-0000">
+                <div class="form-grid-2 mb-4">
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp *</label>
+                        <input type="text" name="telefone" class="form-control mask-phone" value="${isEdit ? (data.telefone || '') : ''}" required placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label text-primary fw-bold">Limite de Crédito (R$)</label>
+                        <input type="text" name="credit_limit" class="form-control mask-money" value="${isEdit ? UI.formatMoney(data.credit_limit || 0) : '0,00'}">
+                    </div>
                 </div>
 
                 <h6 class="mb-3 mt-4 d-flex align-items-center gap-2" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
@@ -187,7 +197,7 @@ function openTutorModal(data = null) {
                 <div class="form-grid-2 mb-3">
                     <div class="form-group">
                         <label class="form-label">Nome de Usuário (Login)</label>
-                        <input type="text" name="username" id="tutor-username" class="form-control" value="${isEdit ? (data.username || '') : ''}" required placeholder="Ex: joaosilva" onfocus="if(!this.value) suggestUsername()">
+                        <input type="text" name="username" id="tutor-username" class="form-control" value="${isEdit ? (data.username || '') : ''}" required placeholder="Ex: joaosilva" ${isEdit ? 'readonly style="background: rgba(var(--primary-rgb), 0.05); cursor: not-allowed;"' : 'onfocus="if(!this.value) suggestUsername()"'}>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Senha de Acesso</label>
@@ -217,7 +227,7 @@ function openTutorModal(data = null) {
                     </div>
                 </div>
 
-                <div class="form-grid-3 mb-3">
+                <div class="form-grid-2 mb-3">
                     <div class="form-group">
                         <label class="form-label">Número</label>
                         <input type="text" name="address_number" class="form-control" value="${isEdit ? (data.address_number || '') : ''}">
@@ -226,12 +236,13 @@ function openTutorModal(data = null) {
                         <label class="form-label">Bairro</label>
                         <input type="text" name="neighborhood" id="tutor-neighborhood" class="form-control" value="${isEdit ? (data.neighborhood || '') : ''}">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Cidade / UF</label>
-                        <div class="d-flex gap-2">
-                            <input type="text" name="city" id="tutor-city" class="form-control" value="${isEdit ? (data.city || '') : ''}" placeholder="Cidade">
-                            <input type="text" name="state" id="tutor-state" class="form-control text-center" value="${isEdit ? (data.state || '') : ''}" maxlength="2" style="width: 60px;" placeholder="UF">
-                        </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="form-label">Cidade / UF</label>
+                    <div class="d-flex gap-2">
+                        <input type="text" name="city" id="tutor-city" class="form-control" value="${isEdit ? (data.city || '') : ''}" placeholder="Cidade">
+                        <input type="text" name="state" id="tutor-state" class="form-control text-center" value="${isEdit ? (data.state || '') : ''}" maxlength="2" style="width: 60px;" placeholder="UF">
                     </div>
                 </div>
             </div>

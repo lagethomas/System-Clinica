@@ -41,7 +41,7 @@ $page_titles = [
     'plans' => 'Pacotes de Assinatura',
     'companies' => 'Empresas Clientes',
     'subscriptions' => 'Faturas e Assinaturas',
-    'produtos' => 'Produtos / Loja'
+    'produtos' => 'Produtos / ClubePet+'
 ];
 
 // Fetch Notifications
@@ -265,14 +265,19 @@ $unread_count = count($unread_notifications);
                             <i data-lucide="home" class="icon-lucide"></i> <span>Minha Área</span>
                         </a>
                     </li>
-                    <li class="<?php echo ($route == 'app/tutor/loja') ? 'active' : ''; ?>">
-                        <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($_SESSION['company_slug'] ?? ''); ?>/loja">
-                            <i data-lucide="shopping-bag" class="icon-lucide"></i> <span>Loja</span>
+                    <li class="<?php echo ($route == 'app/tutor/clube-pet') ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($_SESSION['company_slug'] ?? ''); ?>/clube-pet">
+                            <i data-lucide="shopping-bag" class="icon-lucide"></i> <span>ClubePet+</span>
                         </a>
                     </li>
                     <li class="<?php echo ($route == 'app/tutor/minhas-compras') ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>/app/tutor/minhas-compras">
                             <i data-lucide="package" class="icon-lucide"></i> <span>Minhas Compras</span>
+                        </a>
+                    </li>
+                    <li class="<?php echo ($route == 'app/tutor/cashback') ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/app/tutor/cashback">
+                            <i data-lucide="coins" class="icon-lucide"></i> <span>Cashback</span>
                         </a>
                     </li>
                     <?php endif; ?>
@@ -300,10 +305,15 @@ $unread_count = count($unread_notifications);
                     </li>
                     <li class="<?php echo ($current_page == 'produtos') ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>/app/produtos">
-                            <i data-lucide="shopping-bag" class="icon-lucide"></i> <span>Produtos / Loja</span>
+                            <i data-lucide="shopping-bag" class="icon-lucide"></i> <span>Produtos / ClubePet+</span>
                         </a>
                     </li>
-                    <?php endif; ?>
+                    <li class="<?php echo ($current_page == 'saques') ? 'active' : ''; ?>">
+                        <a href="<?php echo SITE_URL; ?>/app/admin/cashback/saques">
+                            <i data-lucide="hand-coins" class="icon-lucide"></i> <span>Solicitações de Saque</span>
+                        </a>
+                    </li>
+<?php endif; ?>
 
                     <?php if (Auth::isProprietario()): ?>
                         <?php 
@@ -469,6 +479,9 @@ $unread_count = count($unread_notifications);
                                     </div>
                                 <?php endforeach; ?>
                                 <style>
+                                    .notif-list { max-height: 280px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--primary) transparent; }
+                                    .notif-list::-webkit-scrollbar { width: 4px; }
+                                    .notif-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
                                     .notif-wrapper { position: relative; display: flex; overflow: hidden; border-bottom: 1px solid var(--border); transition: 0.2s; }
                                     .notif-wrapper:hover { background: rgba(255,255,255,0.02); }
                                     .btn-notif-delete-right { 

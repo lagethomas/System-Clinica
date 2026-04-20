@@ -22,7 +22,7 @@ function hexToRgbSingle(string $hex): string {
 $primaryRGB = hexToRgbSingle($primaryColor);
 $SITE_URL = SITE_URL;
 $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'], '/') : null;
-$lojaUrl = $SITE_URL . '/' . $company['slug'] . '/loja';
+$lojaUrl = $SITE_URL . '/' . $company['slug'] . '/clube-pet';
 
 // Price calculation
 $preco = (float)$produto['preco'];
@@ -40,7 +40,7 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
-    <link rel="stylesheet" href="<?php echo $SITE_URL; ?>/assets/css/modules/loja.css">
+    <link rel="stylesheet" href="<?php echo $SITE_URL; ?>/assets/css/modules/clube-pet.css">
 
     <style>
         :root {
@@ -425,10 +425,9 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
             <?php endif; ?>
             <span class="topbar-company-name"><?php echo htmlspecialchars($company['name']); ?></span>
         </a>
-
         <a href="<?php echo $lojaUrl; ?>" class="btn-back-loja">
             <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
-            Voltar à Loja
+            Voltar ao ClubePet+
         </a>
     </div>
 
@@ -594,7 +593,7 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
                     </div>
                     <div class="method-option" id="method-pickup" onclick="setDeliveryMethod('pickup')">
                         <i data-lucide="store" style="width:18px;height:18px;"></i>
-                        <span>Retirar na Loja</span>
+                        <span>Retirar no ClubePet+</span>
                     </div>
                 </div>
             </div>
@@ -707,7 +706,7 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
     const SITE_URL = '<?php echo $SITE_URL; ?>';
     const COMPANY_ID = '<?php echo $company['id']; ?>';
     const COMPANY_SLUG = '<?php echo $company['slug']; ?>';
-    const CART_KEY = 'cart_loja_' + COMPANY_ID;
+    const CART_KEY = 'cart_clube_pet_' + COMPANY_ID;
     const DELIVERY_FEE = parseFloat('<?php echo $company['taxa_entrega'] ?? 0; ?>');
 
     const PRODUCT = <?php echo json_encode([

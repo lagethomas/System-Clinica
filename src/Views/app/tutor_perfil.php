@@ -270,53 +270,49 @@ function openTutorEditModal(data) {
                 <input type="hidden" name="id" value="${data.id}">
                 <input type="hidden" name="nonce" value="<?php echo \Nonce::create('tutor_save'); ?>">
                 
-                <h6 class="mb-4 d-flex align-items-center gap-2 label-tiny-caps text-primary-important border-bottom pb-2">
-                    <i data-lucide="user" class="icon-lucide icon-xs"></i> Dados Principais
+                <h6 class="mb-3 d-flex align-items-center gap-2" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
+                    <i data-lucide="user" class="icon-lucide icon-xs"></i> Identificação do Cliente
                 </h6>
 
-                <div class="form-group mb-4">
+                <div class="form-group mb-3">
                     <label class="form-label">Nome Completo *</label>
-                    <div class="input-with-icon">
-                        <i data-lucide="user" class="icon-lucide"></i>
-                        <input type="text" name="nome" class="form-control" value="${data.nome || ''}" required placeholder="Nome completo do tutor">
-                    </div>
+                    <input type="text" name="nome" class="form-control" value="${data.nome || ''}" required placeholder="Nome do proprietário">
                 </div>
 
-                <div class="form-grid-2 mb-4">
+                <div class="form-grid-2 mb-3">
                     <div class="form-group">
-                        <label class="form-label">CPF / CNPJ</label>
+                        <label class="form-label">CPF/CNPJ</label>
                         <input type="text" name="cpf" class="form-control mask-document" value="${data.cpf || ''}" placeholder="000.000.000-00">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">WhatsApp *</label>
-                        <div class="input-with-icon">
-                            <i data-lucide="phone" class="icon-lucide"></i>
-                            <input type="text" name="telefone" class="form-control mask-phone" value="${data.telefone || ''}" required placeholder="(00) 00000-0000">
-                        </div>
+                        <label class="form-label">E-mail</label>
+                        <input type="email" name="email" class="form-control" value="${data.email || ''}" placeholder="email@exemplo.com">
                     </div>
                 </div>
-
-                <div class="form-group mb-4">
-                    <label class="form-label">E-mail de Contato</label>
-                    <div class="input-with-icon">
-                        <i data-lucide="mail" class="icon-lucide"></i>
-                        <input type="email" name="email" class="form-control" value="${data.email || ''}" placeholder="exemplo@email.com">
-                    </div>
-                </div>
-
-                <h6 class="mb-4 mt-4 d-flex align-items-center gap-2 label-tiny-caps text-primary-important border-bottom pb-2">
-                    <i data-lucide="key" class="icon-lucide icon-xs"></i> Configurações de Acesso
-                </h6>
 
                 <div class="form-grid-2 mb-4">
                     <div class="form-group">
-                        <label class="form-label">Usuário de Login *</label>
-                        <input type="text" name="username" class="form-control" value="${data.username || data.email || ''}" required placeholder="Ex: joao.silva">
-                        <p class="small text-muted mt-1" style="font-size: 10px;">Login para o portal do cliente.</p>
+                        <label class="form-label">WhatsApp *</label>
+                        <input type="text" name="telefone" class="form-control mask-phone" value="${data.telefone || ''}" required placeholder="(00) 00000-0000">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Nova Senha (opcional)</label>
-                        <input type="password" name="password" class="form-control" placeholder="Mudar senha...">
+                        <label class="form-label text-primary fw-bold">Limite de Crédito (R$)</label>
+                        <input type="text" name="credit_limit" class="form-control mask-money" value="${UI.formatMoney(data.credit_limit || 0)}">
+                    </div>
+                </div>
+
+                <h6 class="mb-3 mt-4 d-flex align-items-center gap-2" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
+                    <i data-lucide="key" class="icon-lucide icon-xs"></i> Acesso ao Portal do Cliente (Tutor)
+                </h6>
+
+                <div class="form-grid-2 mb-3">
+                    <div class="form-group">
+                        <label class="form-label">Nome de Usuário (Login)</label>
+                        <input type="text" name="username" class="form-control" value="${data.username || ''}" readonly style="background: rgba(var(--primary-rgb), 0.05); cursor: not-allowed;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Senha de Acesso</label>
+                        <input type="password" name="password" class="form-control" placeholder="Deixe em branco p/ manter">
                     </div>
                 </div>
 
@@ -338,7 +334,7 @@ function openTutorEditModal(data) {
                     </div>
                 </div>
 
-                <h6 class="mb-4 mt-4 d-flex align-items-center gap-2 label-tiny-caps text-primary-important border-bottom pb-2">
+                <h6 class="mb-3 mt-4 d-flex align-items-center gap-2" style="color: var(--primary); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: 1px;">
                     <i data-lucide="map-pin" class="icon-lucide icon-xs"></i> Localização / Endereço
                 </h6>
 
@@ -347,7 +343,7 @@ function openTutorEditModal(data) {
                         <label class="form-label">CEP</label>
                         <input type="text" name="zip_code" class="form-control mask-zip" value="${data.zip_code || ''}" onblur="UI.lookupZip(this.value, 'tutor-city', 'tutor-state', 'tutor-street', 'tutor-neighborhood')">
                     </div>
-                    <div class="form-group col-span-2">
+                    <div class="form-group" style="grid-column: span 2;">
                         <label class="form-label">Rua / Avenida</label>
                         <input type="text" name="street" id="tutor-street" class="form-control" value="${data.street || ''}">
                     </div>
@@ -366,6 +362,11 @@ function openTutorEditModal(data) {
                         <label class="form-label">Cidade</label>
                         <input type="text" name="city" id="tutor-city" class="form-control" value="${data.city || ''}">
                     </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label class="form-label">Estado (UF)</label>
+                    <input type="text" name="state" id="tutor-state" class="form-control text-center" value="${data.state || ''}" maxlength="2" style="width: 60px;">
                 </div>
             </div>
 

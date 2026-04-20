@@ -52,4 +52,11 @@ if (typeof UI !== 'undefined') {
             this.showToast('Foto selecionada! Clique em Salvar Alterações para aplicá-la.', 'info');
         }
     };
+
+    UI.formatMoney = function (value) {
+        return parseFloat(value).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    };
 }

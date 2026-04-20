@@ -23,12 +23,12 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($company['name']); ?> | Loja Online</title>
+    <title><?php echo htmlspecialchars($company['name']); ?> | ClubePet+</title>
     <meta name="description" content="Confira todos os produtos disponíveis em <?php echo htmlspecialchars($company['name']); ?>.">
 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
-    <link rel="stylesheet" href="<?php echo $SITE_URL; ?>/assets/css/modules/loja.css">
+    <link rel="stylesheet" href="<?php echo $SITE_URL; ?>/assets/css/modules/clube-pet.css">
 
     <style>
         :root {
@@ -110,10 +110,23 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
 
         .clube-cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
             position: relative;
             z-index: 1;
+        }
+
+        .clube-info-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 30px;
+            text-align: left;
+        }
+
+        @media (max-width: 600px) {
+            .clube-info-list {
+                grid-template-columns: 1fr;
+            }
         }
 
         .clube-card {
@@ -324,9 +337,13 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
         }
 
         .price-current {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .price-current.promo {
@@ -353,6 +370,18 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             background: var(--primary);
             color: #000;
             border-color: var(--primary);
+        }
+
+        .discount-tag {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 2px;
         }
 
         /* Empty state */
@@ -392,7 +421,7 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             display: flex;
             gap: 12px;
             overflow-x: auto;
-            padding: 10px 0;
+            padding: 10px;
             margin-bottom: 40px;
             scrollbar-width: none;
         }
@@ -469,61 +498,50 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
         <!-- ========== CLUBE DE BENEFÍCIOS BANNER ========== -->
         <div class="clube-banner">
             <div class="clube-badge">
-                <i data-lucide="star" style="width:12px;height:12px;"></i>
-                Exclusivo para você
+                <i data-lucide="shield-check" style="width:12px;height:12px;"></i>
+                Exclusivo para Assinantes
             </div>
-            <h2 class="clube-title">Clube de <span>Benefícios</span></h2>
-            <p class="clube-subtitle">
-                Faça parte do nosso clube e aproveite vantagens exclusivas, descontos especiais e muito mais para você e seu pet.
-            </p>
+            
+            <div style="margin-bottom: 40px;">
+                <h2 class="clube-title">Exclusivo para clientes do <span>Plano de Saúde Pet</span></h2>
+                <p class="clube-subtitle" style="margin-bottom: 25px;">
+                    Nosso clube de benefícios é exclusivo para quem protege seu pet com nosso plano.
+                </p>
+                
+                <div style="display: inline-flex; flex-direction: column; align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.2); padding: 25px 35px; border-radius: 24px; border: 1px solid rgba(var(--primary-rgb), 0.2); margin-bottom: 10px; backdrop-filter: blur(10px);">
+                    <span style="font-weight: 800; color: var(--primary); font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px;">Você terá acesso a:</span>
+                    <div class="clube-info-list">
+                        <div style="font-size: 15px; color: #fff; display: flex; align-items: center; gap: 10px;"><i data-lucide="check-circle" style="width:16px;height:16px;color:var(--primary);"></i> descontos especiais</div>
+                        <div style="font-size: 15px; color: #fff; display: flex; align-items: center; gap: 10px;"><i data-lucide="check-circle" style="width:16px;height:16px;color:var(--primary);"></i> produtos premium</div>
+                        <div style="font-size: 15px; color: #fff; display: flex; align-items: center; gap: 10px;"><i data-lucide="check-circle" style="width:16px;height:16px;color:var(--primary);"></i> serviços com preços reduzidos</div>
+                        <div style="font-size: 15px; color: #fff; display: flex; align-items: center; gap: 10px;"><i data-lucide="check-circle" style="width:16px;height:16px;color:var(--primary);"></i> marketplace exclusivo</div>
+                    </div>
+                </div>
+            </div>
 
-            <div class="clube-cards-grid">
+            <div class="clube-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); max-width: 1000px; margin: 0 auto;">
                 <div class="clube-card">
                     <div class="clube-card-icon">
-                        <i data-lucide="percent" style="width:24px;height:24px;"></i>
+                        <i data-lucide="truck" style="width:24px;height:24px;"></i>
                     </div>
-                    <div class="clube-card-title">Descontos Exclusivos</div>
-                    <div class="clube-card-desc">Acesso a preços especiais e promoções disponíveis apenas para membros.</div>
+                    <div class="clube-card-title">Frete Grátis Exclusivo</div>
+                    <div class="clube-card-desc">Receba produtos selecionados para seu pet sem pagar frete em compras pelo clube.</div>
+                </div>
+
+                <div class="clube-card">
+                    <div class="clube-card-icon">
+                        <i data-lucide="video" style="width:24px;height:24px;"></i>
+                    </div>
+                    <div class="clube-card-title">Orientação Veterinária Online</div>
+                    <div class="clube-card-desc">Tire dúvidas rápidas com profissionais parceiros sem precisar sair de casa através de teleorientação.</div>
                 </div>
 
                 <div class="clube-card">
                     <div class="clube-card-icon">
                         <i data-lucide="gift" style="width:24px;height:24px;"></i>
                     </div>
-                    <div class="clube-card-title">Brindes & Surpresas</div>
-                    <div class="clube-card-desc">Ganhe brindes e presentes surpresa nas suas compras e consultas.</div>
-                </div>
-
-                <div class="clube-card">
-                    <div class="clube-card-icon">
-                        <i data-lucide="shield-check" style="width:24px;height:24px;"></i>
-                    </div>
-                    <div class="clube-card-title">Cobertura Veterinária</div>
-                    <div class="clube-card-desc">Consultas e exames com preços diferenciados para membros do clube.</div>
-                </div>
-
-                <div class="clube-card">
-                    <div class="clube-card-icon">
-                        <i data-lucide="bell" style="width:24px;height:24px;"></i>
-                    </div>
-                    <div class="clube-card-title">Alertas de Novidades</div>
-                    <div class="clube-card-desc">Seja o primeiro a saber sobre novos produtos e serviços disponíveis.</div>
-                </div>
-
-                <div class="clube-card">
-                    <div class="clube-card-icon">
-                        <i data-lucide="heart" style="width:24px;height:24px;"></i>
-                    </div>
-                    <div class="clube-card-title">Cuidado Preferencial</div>
-                    <div class="clube-card-desc">Atendimento prioritário e cuidado personalizado para seus pets.</div>
-                </div>
-
-                <div class="clube-card">
-                    <div class="clube-card-icon">
-                        <i data-lucide="trending-up" style="width:24px;height:24px;"></i>
-                    </div>
-                    <div class="clube-card-title">Acúmulo de Pontos</div>
-                    <div class="clube-card-desc">Cada compra gera pontos que podem ser trocados por benefícios.</div>
+                    <div class="clube-card-title">Mimos & Caixas Surpresa</div>
+                    <div class="clube-card-desc">Clientes do clube podem receber mimos exclusivos e caixas surpresa para seus pets ao longo do ano.</div>
                 </div>
             </div>
         </div>
@@ -560,7 +578,7 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
                 $preco = (float)$p['preco'];
                 $precoPromo = !empty($p['preco_promocional']) ? (float)$p['preco_promocional'] : null;
                 $emPromocao = (bool)$p['em_promocao'];
-                $singleUrl = $SITE_URL . '/' . $company['slug'] . '/loja/' . $p['id'];
+                $singleUrl = $SITE_URL . '/' . $company['slug'] . '/clube-pet/' . $p['id'];
                 ?>
                 <a href="<?php echo $singleUrl; ?>" class="product-card">
                     <?php if ($emPromocao): ?>
@@ -584,9 +602,17 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
                         </p>
 
                         <div class="price-section">
-                            <?php if ($emPromocao && $precoPromo): ?>
-                                <span class="price-original"><span style="font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-right:4px;">Preço normal</span>R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
-                                <span class="price-current promo"><span style="font-size:10px;font-weight:700;background:rgba(239,68,68,0.15);color:#ef4444;padding:2px 6px;border-radius:4px;margin-right:6px;text-transform:uppercase;letter-spacing:0.5px;">Cliente clube</span>R$ <?php echo number_format($precoPromo, 2, ',', '.'); ?></span>
+                            <?php if ($emPromocao && $precoPromo): 
+                                $pct = round((($preco - $precoPromo) / $preco) * 100);
+                            ?>
+                                <span class="price-original">R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
+                                <div class="price-current promo">
+                                    <span style="color:#ef4444;">R$ <?php echo number_format($precoPromo, 2, ',', '.'); ?></span>
+                                    <div class="discount-tag">
+                                        <i data-lucide="trending-down" style="width:12px;height:12px;"></i>
+                                        <?php echo $pct; ?>%
+                                    </div>
+                                </div>
                             <?php else: ?>
                                 <span class="price-current">R$ <?php echo number_format($preco, 2, ',', '.'); ?></span>
                             <?php endif; ?>
@@ -676,10 +702,41 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
                     </div>
                     <div class="method-option" id="method-pickup" onclick="setDeliveryMethod('pickup')">
                         <i data-lucide="store" style="width:18px;height:18px;"></i>
-                        <span>Retirar na Loja</span>
+                        <span>Retirar no ClubePet+</span>
                     </div>
                 </div>
             </div>
+
+            <!-- Cashback Balance Option -->
+            <?php if ($client_data && (float)$client_data['cashback_balance'] > 0): ?>
+            <div class="form-group-digital-lg mt-4">
+                <label class="checkout-label-bold">Deseja usar seu Saldo Cashback?</label>
+                <div class="delivery-method-grid mb-3">
+                    <div class="method-option" id="use-cashback-trigger" onclick="toggleCashbackUsage()" style="flex: 1; max-width: 200px;">
+                        <i data-lucide="wallet" style="width:18px;height:18px;"></i>
+                        <div class="text-start">
+                            <span class="d-block" style="font-size: 13px;">Usar Saldo</span>
+                            <small class="text-muted" style="font-size: 10px; display: block; margin-top: -2px;">R$ <?php echo number_format((float)$client_data['cashback_balance'], 2, ',', '.'); ?></small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="cashback-usage-container" style="display: none; animation: slideDown 0.3s ease;">
+                    <div class="form-group-digital bg-white-5 p-3" style="border-radius: 16px; border: 1px dashed rgba(var(--primary-rgb), 0.3);">
+                        <label class="checkout-label">Quanto deseja usar? (Máx R$ <?php echo number_format((float)$client_data['cashback_balance'], 2, ',', '.'); ?>)</label>
+                        <div class="input-group-digital" style="position: relative; margin-top: 8px;">
+                            <span style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--primary); font-weight: 800;">R$</span>
+                            <input type="text" id="cashback_amount_to_use" class="form-control-digital" style="padding-left: 45px;" placeholder="0,00" oninput="validateCashbackInput(this)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+                .method-option.active-cashback { border-color: var(--primary); background: rgba(var(--primary-rgb), 0.1); color: var(--primary); }
+                .bg-white-5 { background: rgba(255,255,255,0.03); }
+            </style>
+            <?php endif; ?>
 
             <!-- Address Fields Wrapper -->
             <div id="address-fields-wrapper">
@@ -727,6 +784,10 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             <div class="cart-total-row delivery-fee-row" id="delivery-fee-row">
                 <span style="font-size:14px;color:var(--text-muted);">Frete</span>
                 <span id="cart-delivery" style="font-size:14px;color:var(--text-muted);">+ R$ 0,00</span>
+            </div>
+            <div class="cart-total-row" id="cashback-discount-row" style="display: none;">
+                <span style="font-size:14px;color:#22c55e;">Desconto Cashback</span>
+                <span id="cart-cashback-discount" style="font-size:14px;color:#22c55e;">- R$ 0,00</span>
             </div>
             <div class="cart-total-row">
                 <span>Total</span>
@@ -785,7 +846,7 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
     const SITE_URL = '<?php echo $SITE_URL; ?>';
     const COMPANY_ID = '<?php echo $company['id']; ?>';
     const COMPANY_SLUG = '<?php echo $company['slug']; ?>';
-    const CART_KEY = 'cart_loja_' + COMPANY_ID;
+    const CART_KEY = 'cart_clube_pet_' + COMPANY_ID;
     const DELIVERY_FEE = parseFloat('<?php echo $company['taxa_entrega'] ?? 0; ?>');
 
     // UI Helpers
@@ -799,6 +860,44 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
 
     let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
     let deliveryMethod = 'delivery';
+    let isUsingCashback = false;
+    let availableCashback = parseFloat('<?php echo $client_data['cashback_balance'] ?? 0; ?>');
+
+    function toggleCashbackUsage() {
+        const trigger = document.getElementById('use-cashback-trigger');
+        const container = document.getElementById('cashback-usage-container');
+        const input = document.getElementById('cashback_amount_to_use');
+        
+        isUsingCashback = !isUsingCashback;
+        
+        if (isUsingCashback) {
+            trigger.classList.add('active-cashback');
+            container.style.display = 'block';
+        } else {
+            trigger.classList.remove('active-cashback');
+            container.style.display = 'none';
+            input.value = '';
+        }
+        renderCart();
+    }
+
+    function validateCashbackInput(input) {
+        let v = input.value.replace(/\D/g, '');
+        if (v === '') { renderCart(); return; }
+        
+        let amount = parseInt(v) / 100;
+        
+        // Cannot use more than available
+        if (amount > availableCashback) {
+            amount = availableCashback;
+        }
+
+        // Format back to money
+        let formatted = amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        input.value = formatted;
+        
+        renderCart();
+    }
 
     function filterCategory(catId) {
         const groups = document.querySelectorAll('.category-group');
@@ -889,6 +988,32 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             devFeeVal.innerText = '+ R$ ' + DELIVERY_FEE.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
         } else {
             devFeeRow.classList.add('hidden');
+        }
+
+        // Apply Cashback Discount
+        const cashbackRow = document.getElementById('cashback-discount-row');
+        const cashbackVal = document.getElementById('cart-cashback-discount');
+        let cashbackUsed = 0;
+
+        if (isUsingCashback) {
+            const input = document.getElementById('cashback_amount_to_use');
+            cashbackUsed = parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
+            
+            // Cannot use more than total
+            if (cashbackUsed > total) {
+                cashbackUsed = total;
+                input.value = cashbackUsed.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            }
+
+            if (cashbackUsed > 0) {
+                total -= cashbackUsed;
+                cashbackRow.style.display = 'flex';
+                cashbackVal.innerText = '- R$ ' + cashbackUsed.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            } else {
+                cashbackRow.style.display = 'none';
+            }
+        } else {
+            cashbackRow.style.display = 'none';
         }
 
         totalEl.innerText = 'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
@@ -986,6 +1111,12 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             return;
         }
 
+        let cashbackUsed = 0;
+        if (isUsingCashback) {
+            const input = document.getElementById('cashback_amount_to_use');
+            cashbackUsed = parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+
         const orderData = {
             company_id: COMPANY_ID,
             cliente_nome: name,
@@ -999,6 +1130,7 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
             complement: document.getElementById('order_complement').value,
             tipo: deliveryMethod, 
             payment_mode: mode,
+            cashback_used: cashbackUsed,
             observacoes: document.getElementById('order_notes').value,
             itens: cart.map(it => ({
                 id: it.id,
@@ -1040,7 +1172,7 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
         let msg = `🛒 *Novo Pedido - #${orderId}*\n\n`;
         msg += `👤 *Cliente:* ${data.cliente_nome}\n`;
         msg += `📞 *Telefone:* ${data.cliente_telefone}\n`;
-        msg += `📍 *Tipo:* ${data.tipo === 'delivery' ? 'Entrega' : 'Retirar na Loja'}\n`;
+        msg += `📍 *Tipo:* ${data.tipo === 'delivery' ? 'Entrega' : 'Retirar no ClubePet+'}\n`;
         
         if (data.tipo === 'delivery') {
             msg += `🏠 *Endereço:* ${data.address}, ${data.number}\n`;

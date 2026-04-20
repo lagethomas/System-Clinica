@@ -1,0 +1,149 @@
+/* Cashback Module Styles */
+.cashback-header {
+    margin-bottom: 2rem;
+}
+
+.cashback-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.icon-box-lite {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(var(--primary-rgb), 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.icon-box-lite i {
+    width: 20px;
+    height: 20px;
+}
+
+.text-main {
+    color: var(--text-main);
+}
+
+.card-header-premium {
+    background: rgba(255, 255, 255, 0.01);
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header-premium h3 {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.premium-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.status-success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.status-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.progress-premium {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar-premium {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
+.cashback-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.cashback-steps li {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.step-text strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.step-text p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Specific Stat Card Highlight */
+.stat-card.main-balance {
+    border-left: 4px solid var(--primary) !important;
+}
+/* Tab Navigation */
+.module-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+}
+
+.tab-link {
+    padding: 12px 24px;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    text-decoration: none !important;
+}
+
+.tab-link:hover {
+    color: var(--primary);
+}
+
+.tab-link.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.withdrawal-form-box {
+    max-width: 500px;
+}

@@ -20,6 +20,9 @@ $current_theme = $company['theme'] ?? 'gold-black';
     <a href="?tab=mercadopago" class="nav-link-tab <?php echo $active_tab === 'mercadopago' ? 'active' : ''; ?>">
         <i data-lucide="credit-card" class="icon-lucide"></i> Mercado Pago
     </a>
+    <a href="?tab=clubepet" class="nav-link-tab <?php echo $active_tab === 'clubepet' ? 'active' : ''; ?>">
+        <i data-lucide="award" class="icon-lucide"></i> ClubePet+
+    </a>
 </div>
 
 <div class="card settings-main-card">
@@ -147,7 +150,7 @@ $current_theme = $company['theme'] ?? 'gold-black';
 
             <div class="settings-header-box" style="padding: 25px 30px 5px 30px; border-bottom: none;">
                 <h5><i data-lucide="credit-card" class="icon-lucide" style="width:16px;height:16px;"></i> Mercado Pago</h5>
-                <p>Configure suas credenciais para aceitar pagamentos online via Pix e cartão na loja da sua clínica.</p>
+                <p>Configure suas credenciais para aceitar pagamentos online via Pix e cartão no ClubePet+ da sua clínica.</p>
             </div>
 
             <!-- Delivery Fee & Status -->
@@ -226,6 +229,49 @@ $current_theme = $company['theme'] ?? 'gold-black';
                 </button>
             </div>
 
+        <?php elseif ($active_tab === 'clubepet'): ?>
+            <div class="settings-header-box" style="padding: 25px 30px 5px 30px; border-bottom: none;">
+                <h5><i data-lucide="award" class="icon-lucide" style="width:16px;height:16px;"></i> ClubePet+ (Benefícios & Cashback)</h5>
+                <p>Configure as regras do seu clube de fidelidade exclusivo para tutores.</p>
+            </div>
+
+            <div style="padding: 20px 30px 10px;">
+                <div class="form-grid-2 gap-md">
+                    <div class="upload-box-wrapper p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="upload-label m-0"><i data-lucide="percent" class="icon-lucide"></i> Porcentagem de Cashback</label>
+                            <label class="switch">
+                                <input type="checkbox" name="cashback_active" <?php echo ($cashback_config['active'] ?? 1) == 1 ? 'checked' : ''; ?>>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="floating-group">
+                            <input type="text" name="cashback_percentage" id="cashback_percentage" class="form-control mask-money"
+                                   value="<?php echo number_format((float)($cashback_config['percentage'] ?? 0), 2, ',', '.'); ?>"
+                                   placeholder=" ">
+                            <label for="cashback_percentage">Valor do Cashback (%)</label>
+                        </div>
+                        <small class="text-muted">Este valor será devolvido ao tutor em cada compra aprovada no ClubePet+.</small>
+                    </div>
+
+                    <div class="upload-box-wrapper p-4 d-flex align-items-center">
+                        <div class="icon-box-lite me-3" style="width: 60px; height: 60px; border-radius: 15px;">
+                            <i data-lucide="help-circle" class="text-primary" style="width: 30px; height: 30px;"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-800 mb-1">Como funciona?</h6>
+                            <p class="small text-muted mb-0">Se o cashback for de 5%, uma compra de R$ 100 gera R$ 5 de saldo para o tutor usar em compras futuras.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-footer-section" style="padding: 20px 30px; border-top: 1px solid var(--border);">
+                <button type="submit" class="btn-primary settings-save-btn">
+                    <span class="btn-text"><i data-lucide="save" class="icon-lucide"></i> Salvar Configurações do Clube</span>
+                    <span class="btn-loader" style="display:none;"><i data-lucide="loader" class="icon-lucide"></i> Salvando...</span>
+                </button>
+            </div>
         <?php endif; ?>
     </form>
 </div>

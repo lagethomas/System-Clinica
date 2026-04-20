@@ -267,6 +267,72 @@ function syncTutoresToUsers(): void {
 }
 syncTutoresToUsers();
 
+// 10. Módulo de Cashback
+safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_config` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `company_id` INT NOT NULL,
+    `percentage` DECIMAL(5, 2) NOT NULL DEFAULT 0.00,
+    `min_order_value` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    `active` TINYINT(1) DEFAULT 1,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY `idx_company_unique` (`company_id`),
+    CONSTRAINT `fk_cashback_config_company` FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_cashback_config");
+
+safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_logs` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `company_id` INT NOT NULL,
+    `tutor_id` INT NOT NULL,
+    `order_id` INT DEFAULT NULL,
+    `amount` DECIMAL(10, 2) NOT NULL,
+    `type` ENUM('credit', 'debit') NOT NULL,
+    `description` VARCHAR(255) DEFAULT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX `idx_company_tutor` (`company_id`, `tutor_id`),
+    CONSTRAINT `fk_cashback_logs_company` FOREIGN KEY (`company_id`) REFERENCES `cp_companies`(`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_cashback_logs_tutor` FOREIGN KEY (`tutor_id`) REFERENCES `cp_tutores`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_cashback_logs");
+
+addCol('cp_tutores', 'cashback_balance', 'DECIMAL(10, 2) DEFAULT 0.00');
+
+// --- Cashback Withdrawals (ClubePet+) ---
+safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_withdrawals` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `company_id` INT NOT NULL,
+    `tutor_id` INT NOT NULL,
+    `amount` DECIMAL(10, 2) NOT NULL,
+    `pix_type` ENUM('cpf', 'cnpj', 'email', 'phone', 'random') NOT NULL,
+    `pix_key` VARCHAR(255) NOT NULL,
+    `status` ENUM('pending', 'paid', 'cancelled') DEFAULT 'pending',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `paid_at` TIMESTAMP NULL,
+    INDEX (`company_id`),
+    INDEX (`tutor_id`),
+    INDEX (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_cashback_withdrawals");
+
+addCol('cp_tutores', 'pix_type', 'VARCHAR(20) DEFAULT NULL');
+addCol('cp_tutores', 'pix_key', 'VARCHAR(255) DEFAULT NULL');
+
+// --- Credit Limit (Empréstimo) ---
+addCol('cp_tutores', 'credit_limit', 'DECIMAL(10, 2) DEFAULT 0.00');
+
+// --- Cashback Loans (Empréstimo) ---
+safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_loans` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `company_id` INT NOT NULL,
+    `tutor_id` INT NOT NULL,
+    `amount` DECIMAL(15,2) NOT NULL,
+    `installments` INT NOT NULL,
+    `total_to_pay` DECIMAL(15,2) NOT NULL,
+    `status` ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX (`company_id`),
+    INDEX (`tutor_id`),
+    INDEX (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_cashback_loans");
+
 // --- RESPOSTA FINAL ---
 header('Content-Type: application/json');
 echo json_encode([

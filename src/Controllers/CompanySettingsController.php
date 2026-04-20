@@ -22,11 +22,18 @@ class CompanySettingsController extends Controller {
         $active_tab = $_GET['tab'] ?? 'general';
         $company = Database::fetch("SELECT * FROM cp_companies WHERE id = :id", ['id' => $company_id]);
         
+        // Fetch Cashback Config
+        $cashback_config = Database::fetch("SELECT * FROM cp_cashback_config WHERE company_id = :cid", ['cid' => $company_id]);
+        if (!$cashback_config) {
+            $cashback_config = ['percentage' => 0.00, 'min_order_value' => 0.00, 'active' => 1];
+        }
+
         require_once __DIR__ . '/../../includes/helpers/ThemeHelper.php';
         $themes = \ThemeHelper::getAvailableThemes();
 
         $this->render('app/company_settings', [
             'company' => $company,
+            'cashback_config' => $cashback_config,
             'active_tab' => $active_tab,
             'themes' => $themes,
             'nonce' => \Nonce::create('save_company_settings')
@@ -92,6 +99,27 @@ class CompanySettingsController extends Controller {
 
         Database::update('cp_companies', $data, 'id = :id', ['id' => $company_id]);
         
+        // Handle Cashback Settings
+        if (isset($_POST['cashback_percentage'])) {
+            $percentage = (float)str_replace(',', '.', $_POST['cashback_percentage']);
+            $cb_active = isset($_POST['cashback_active']) ? 1 : 0;
+            
+            $exists = Database::fetch("SELECT id FROM cp_cashback_config WHERE company_id = :cid", ['cid' => $company_id]);
+            if ($exists) {
+                Database::query("UPDATE cp_cashback_config SET percentage = :p, active = :a WHERE company_id = :cid", [
+                    'p' => $percentage,
+                    'a' => $cb_active,
+                    'cid' => $company_id
+                ]);
+            } else {
+                Database::query("INSERT INTO cp_cashback_config (company_id, percentage, active) VALUES (:cid, :p, :a)", [
+                    'cid' => $company_id,
+                    'p' => $percentage,
+                    'a' => $cb_active
+                ]);
+            }
+        }
+
         $user_id = (int)$_SESSION['user_id'];
         $msg = "Configurações da empresa atualizadas.";
         Logger::log('company_settings_updated', $msg);

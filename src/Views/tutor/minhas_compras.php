@@ -222,10 +222,10 @@ $statusLabels = [
     <div class="empty-orders">
         <i data-lucide="shopping-bag" class="icon-lucide" style="width:56px;height:56px;opacity:0.15;margin-bottom:16px;"></i>
         <p style="font-size:17px;font-weight:600;margin-bottom:6px;">Nenhuma compra encontrada</p>
-        <p style="font-size:14px;">Suas compras na loja aparecerão aqui.</p>
+        <p style="font-size:14px;">Suas compras no ClubePet+ aparecerão aqui.</p>
         <?php if (!empty($_SESSION['company_slug'])): ?>
-            <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($_SESSION['company_slug']); ?>/loja" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:10px 24px;">
-                <i data-lucide="shopping-bag" class="icon-lucide icon-sm"></i> Ir para a Loja
+            <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($_SESSION['company_slug']); ?>/clube-pet" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding:10px 24px;">
+                <i data-lucide="shopping-bag" class="icon-lucide icon-sm"></i> Ir para o ClubePet+
             </a>
         <?php endif; ?>
     </div>

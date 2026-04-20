@@ -70,7 +70,7 @@ foreach ($allOrders as $o) {
     <div class="row align-items-center">
         <div class="col-md-8">
             <h1 class="welcome-title mb-1">Gestão de Pedidos</h1>
-            <p class="welcome-sub text-muted">Acompanhe e gerencie as vendas da sua loja.</p>
+            <p class="welcome-sub text-muted">Acompanhe e gerencie as vendas do seu ClubePet+.</p>
         </div>
         <div class="col-md-4 text-md-right">
             <a href="<?php echo SITE_URL; ?>/app/produtos" class="btn-secondary">← Voltar</a>
@@ -133,7 +133,7 @@ foreach ($allOrders as $o) {
                                     <div style="font-size:11px;margin-top:4px;"><?php echo htmlspecialchars(trim(($p['address'] ?? '') . ', ' . ($p['number'] ?? ''), ', ')); ?></div>
                                     <div style="font-size:11px;color:var(--text-muted);"><?php echo htmlspecialchars(trim(($p['neighborhood'] ?? '') . ' — ' . ($p['city'] ?? ''), ' —')); ?></div>
                                 <?php else: ?>
-                                    <span class="badge badge-secondary-lite">Retirada na loja</span>
+                                    <span class="badge badge-secondary-lite">Retirada no ClubePet+</span>
                                 <?php endif; ?>
                             </td>
                             <td>

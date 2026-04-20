@@ -17,21 +17,21 @@ class TutorController extends Controller {
         $company_id = Auth::companyId();
 
         $search = $_GET['search'] ?? '';
-        $where = "WHERE company_id = :cid";
+        $where = "WHERE t.company_id = :cid";
         $params = ['cid' => $company_id];
 
         if (!empty($search)) {
-            $where .= " AND (nome LIKE :s1 OR cpf LIKE :s2 OR email LIKE :s3)";
+            $where .= " AND (t.nome LIKE :s1 OR t.cpf LIKE :s2 OR t.email LIKE :s3)";
             $params['s1'] = "%$search%";
             $params['s2'] = "%$search%";
             $params['s3'] = "%$search%";
         }
 
         // Count total for pagination
-        $totalItems = (int)Database::fetch("SELECT COUNT(*) as total FROM cp_tutores $where", $params)['total'];
+        $totalItems = (int)Database::fetch("SELECT COUNT(*) as total FROM cp_tutores t $where", $params)['total'];
         $pagination = Pagination::getParams($totalItems, 25);
 
-        $sql = "SELECT * FROM cp_tutores $where ORDER BY nome ASC LIMIT :limit OFFSET :offset";
+        $sql = "SELECT t.*, u.username FROM cp_tutores t LEFT JOIN cp_users u ON u.tutor_id = t.id AND u.company_id = t.company_id $where ORDER BY t.nome ASC LIMIT :limit OFFSET :offset";
         $stmt = Database::getInstance()->prepare($sql);
         foreach ($params as $key => $val) {
             $stmt->bindValue(':' . $key, $val);
@@ -72,7 +72,8 @@ class TutorController extends Controller {
             'neighborhood' => $_POST['neighborhood'] ?? null,
             'address_number' => $_POST['address_number'] ?? null,
             'city' => $_POST['city'] ?? null,
-            'state' => $_POST['state'] ?? null
+            'state' => $_POST['state'] ?? null,
+            'credit_limit' => (float)str_replace(',', '.', str_replace('.', '', $_POST['credit_limit'] ?? '0'))
         ];
 
         if (empty($data['nome'])) {
