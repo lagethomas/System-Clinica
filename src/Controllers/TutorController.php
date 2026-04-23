@@ -55,118 +55,105 @@ class TutorController extends Controller {
         Auth::isLoggedIn();
         $company_id = Auth::companyId();
 
-        if (!\Nonce::verify($_POST['nonce'] ?? '', 'tutor_save')) {
-            $this->jsonResponse(['success' => false, 'message' => 'Erro de segurança (Nonce inválido)'], 403);
-            return;
-        }
-
-        $id = $_POST['id'] ?? null;
-        $data = [
-            'company_id' => $company_id,
-            'nome' => $_POST['nome'] ?? '',
-            'cpf' => $_POST['cpf'] ?? null,
-            'email' => $_POST['email'] ?? null,
-            'telefone' => $_POST['telefone'] ?? null,
-            'zip_code' => $_POST['zip_code'] ?? null,
-            'street' => $_POST['street'] ?? null,
-            'neighborhood' => $_POST['neighborhood'] ?? null,
-            'address_number' => $_POST['address_number'] ?? null,
-            'city' => $_POST['city'] ?? null,
-            'state' => $_POST['state'] ?? null,
-            'credit_limit' => (float)str_replace(',', '.', str_replace('.', '', $_POST['credit_limit'] ?? '0'))
-        ];
-
-        if (empty($data['nome'])) {
-            $this->jsonResponse(['success' => false, 'message' => 'O nome do cliente é obrigatório'], 400);
-            return;
-        }
-
-        if ($id) {
-            Database::update('cp_tutores', $data, "id = :id AND company_id = :cid", ['id' => $id, 'cid' => $company_id]);
-            $tutor_id = (int)$id;
-            Logger::log('tutor_update', "Atualizou tutor ID #$id: " . $data['nome']);
-        } else {
-            $tutor_id = (int)Database::insert('cp_tutores', $data);
-            Logger::log('tutor_create', "Cadastrou novo tutor: " . $data['nome']);
-        }
-
-        // ── UPLOAD DE CONTRATO PDF ──
-        if (isset($_FILES['contrato']) && $_FILES['contrato']['error'] === 0) {
-            $allowed = ['application/pdf'];
-            if (in_array($_FILES['contrato']['type'], $allowed)) {
-                $ext = pathinfo($_FILES['contrato']['name'], PATHINFO_EXTENSION);
-                $filename = 'contrato_' . $tutor_id . '_' . time() . '.' . $ext;
-                $upload_dir = '/uploads/contratos/';
-                $full_dir = dirname(__DIR__, 2) . '/public' . $upload_dir;
-                
-                if (!is_dir($full_dir)) {
-                    mkdir($full_dir, 0777, true);
-                }
-                
-                if (move_uploaded_file($_FILES['contrato']['tmp_name'], $full_dir . $filename)) {
-                    Database::update('cp_tutores', ['contrato_url' => $upload_dir . $filename], "id = :id", ['id' => $tutor_id]);
-                }
+        try {
+            if (!\Nonce::verify($_POST['nonce'] ?? '', 'tutor_save')) {
+                $this->jsonResponse(['success' => false, 'message' => 'Erro de segurança (Nonce inválido)'], 403);
+                return;
             }
-        }
 
-        // ── SINCRONIZAR USUÁRIO DO TUTOR (LIBERAR ACESSO) ──
-        // Para que o tutor consiga logar, ele precisa de um registro em cp_users vinculado
-        $username = !empty($data['email']) ? $data['email'] : ($data['cpf'] ? preg_replace('/\D/', '', $data['cpf']) : 'tutor_' . $tutor_id);
-        
-        // Verifica se já existe usuário vinculado
-        $existingUser = Database::fetch("SELECT id FROM cp_users WHERE tutor_id = :tid", ['tid' => $tutor_id]);
-        $username = $_POST['username'] ?? '';
-        $password_raw = $_POST['password'] ?? '';
-        $send_email = ($_POST['send_email'] ?? '0') === '1';
-
-        if (empty($username)) {
-            $this->jsonResponse(['success' => false, 'message' => 'Nome de usuário é obrigatório'], 400);
-            return;
-        }
-
-        // Verifica se username já existe para outro usuário
-        $checkUsername = Database::fetch("SELECT id FROM cp_users WHERE username = :u AND id != :myid", [
-            'u' => $username,
-            'myid' => $existingUser['id'] ?? 0
-        ]);
-        if ($checkUsername) {
-            $this->jsonResponse(['success' => false, 'message' => 'Este nome de usuário já está em uso'], 400);
-            return;
-        }
-
-        if ($existingUser) {
-            $updateData = [
-                'name' => $data['nome'],
-                'email' => $data['email'] ?? '',
-                'username' => $username,
-                'phone' => $data['telefone'] ?? ''
-            ];
-            if (!empty($password_raw)) {
-                $updateData['password'] = password_hash($password_raw, PASSWORD_DEFAULT);
-            }
-            Database::update('cp_users', $updateData, "id = :id", ['id' => $existingUser['id']]);
-        } else {
-            $password = password_hash($password_raw ?: 'Tutor123', PASSWORD_DEFAULT);
-            Database::insert('cp_users', [
+            $id = $_POST['id'] ?? null;
+            $data = [
                 'company_id' => $company_id,
-                'tutor_id' => $tutor_id,
-                'name' => $data['nome'],
-                'email' => $data['email'] ?? '',
-                'username' => $username,
-                'password' => $password,
-                'role' => 'usuario',
-                'phone' => $data['telefone'] ?? '',
-                'active' => 1,
-                'created_at' => date('Y-m-d H:i:s')
+                'nome' => $_POST['nome'] ?? '',
+                'cpf' => $_POST['cpf'] ?? null,
+                'email' => $_POST['email'] ?? null,
+                'telefone' => $_POST['telefone'] ?? null,
+                'zip_code' => $_POST['zip_code'] ?? null,
+                'street' => $_POST['street'] ?? null,
+                'neighborhood' => $_POST['neighborhood'] ?? null,
+                'address_number' => $_POST['address_number'] ?? null,
+                'city' => $_POST['city'] ?? null,
+                'state' => $_POST['state'] ?? null,
+                'credit_limit' => (float)str_replace(',', '.', str_replace('.', '', $_POST['credit_limit'] ?? '0'))
+            ];
+
+            if (empty($data['nome'])) {
+                $this->jsonResponse(['success' => false, 'message' => 'O nome do cliente é obrigatório'], 400);
+                return;
+            }
+
+            if ($id) {
+                Database::update('cp_tutores', $data, "id = :id AND company_id = :cid", ['id' => $id, 'cid' => $company_id]);
+                $tutor_id = (int)$id;
+                Logger::log('tutor_update', "Atualizou tutor ID #$id: " . $data['nome']);
+            } else {
+                $tutor_id = (int)Database::insert('cp_tutores', $data);
+                Logger::log('tutor_create', "Cadastrou novo tutor: " . $data['nome']);
+            }
+
+            // ── SINCRONIZAR USUÁRIO DO TUTOR (LIBERAR ACESSO) ──
+            $existingUser = Database::fetch("SELECT id FROM cp_users WHERE tutor_id = :tid", ['tid' => $tutor_id]);
+            $username = $_POST['username'] ?? '';
+            $password_raw = $_POST['password'] ?? '';
+            $send_email = ($_POST['send_email'] ?? '0') === '1';
+
+            if (empty($username)) {
+                $this->jsonResponse(['success' => false, 'message' => 'Nome de usuário é obrigatório'], 400);
+                return;
+            }
+
+            // Verifica se username já existe para outro usuário
+            $checkUsername = Database::fetch("SELECT id FROM cp_users WHERE username = :u AND id != :myid", [
+                'u' => $username,
+                'myid' => $existingUser['id'] ?? 0
             ]);
-        }
+            if ($checkUsername) {
+                $this->jsonResponse(['success' => false, 'message' => 'Este nome de usuário já está em uso'], 400);
+                return;
+            }
 
-        // Dispara e-mail de boas-vindas se solicitado
-        if ($send_email && !empty($data['email'])) {
-            $this->sendWelcomeEmail($data['nome'], $data['email'], $username, $password_raw ?: 'A senha informada no cadastro');
-        }
+            if ($existingUser) {
+                $updateData = [
+                    'name' => $data['nome'],
+                    'email' => $data['email'] ?? '',
+                    'username' => $username,
+                    'phone' => $data['telefone'] ?? ''
+                ];
+                if (!empty($password_raw)) {
+                    $updateData['password'] = password_hash($password_raw, PASSWORD_DEFAULT);
+                }
+                Database::update('cp_users', $updateData, "id = :id", ['id' => $existingUser['id']]);
+            } else {
+                $password = password_hash($password_raw ?: 'Tutor123', PASSWORD_DEFAULT);
+                Database::insert('cp_users', [
+                    'company_id' => $company_id,
+                    'tutor_id' => $tutor_id,
+                    'name' => $data['nome'],
+                    'email' => $data['email'] ?? '',
+                    'username' => $username,
+                    'password' => $password,
+                    'role' => 'usuario',
+                    'phone' => $data['telefone'] ?? '',
+                    'active' => 1,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+            }
 
-        $this->jsonResponse(['success' => true]);
+            // Dispara e-mail de boas-vindas se solicitado
+            if ($send_email && !empty($data['email'])) {
+                try {
+                    $this->sendWelcomeEmail($data['nome'], $data['email'], $username, $password_raw ?: 'A senha informada no cadastro');
+                } catch (\Exception $e) {
+                    // Log mail error but don't crash the whole process
+                    Logger::log('mail_error', "Erro ao enviar e-mail p/ " . $data['email'] . ": " . $e->getMessage());
+                }
+            }
+
+            $this->jsonResponse(['success' => true]);
+        } catch (\Exception $e) {
+            Logger::log('tutor_save_error', $e->getMessage());
+            $this->jsonResponse(['success' => false, 'message' => 'Erro interno ao salvar cliente: ' . $e->getMessage()], 500);
+        }
     }
 
     private function sendWelcomeEmail($nome, $email, $username, $password): void {

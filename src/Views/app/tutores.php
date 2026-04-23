@@ -54,7 +54,7 @@
                                     <a href="<?php echo SITE_URL; ?>/app/tutores/perfil/<?php echo $t['id']; ?>" class="btn-user-action" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary); border: 1px solid rgba(var(--primary-rgb), 0.2); display: flex; align-items: center; justify-content: center; text-decoration: none;" title="Ver Detalhes">
                                         <i data-lucide="eye" class="icon-lucide icon-sm"></i>
                                     </a>
-                                    <button onclick='openTutorModal(<?php echo json_encode($t); ?>)' class="btn-user-action btn-user-edit" title="Editar">
+                                    <button onclick="openTutorModal(<?php echo htmlspecialchars(json_encode($t), ENT_QUOTES, 'UTF-8'); ?>)" class="btn-user-action btn-user-edit" title="Editar">
                                         <i data-lucide="edit-3" class="icon-lucide icon-sm"></i>
                                     </button>
                                     <button onclick="deleteTutor(<?php echo $t['id']; ?>)" class="btn-user-action btn-user-delete" title="Excluir">
@@ -143,7 +143,7 @@ async function viewTutorDetails(id) {
         </div>
         <div class="modal-footer">
             <button class="btn-secondary" onclick="UI.closeModal()">Fechar</button>
-            <button class="btn-primary" onclick='UI.closeModal(); openTutorModal(${JSON.stringify(tutor)})'>Editar Cliente</button>
+            <button class="btn-primary" onclick="UI.closeModal(); openTutorModal(JSON.parse(atob('${btoa(JSON.stringify(tutor))}')))">Editar Cliente</button>
         </div>
     `;
 
@@ -165,7 +165,7 @@ function openTutorModal(data = null) {
 
                 <div class="form-group mb-3">
                     <label class="form-label">Nome Completo *</label>
-                    <input type="text" name="nome" class="form-control" value="${isEdit ? data.nome : ''}" required placeholder="Nome do proprietário" oninput="suggestUsername()">
+                    <input type="text" name="nome" class="form-control" value="${isEdit ? data.nome : ''}" required placeholder="Nome do proprietário" oninput="suggestUsername(this.form)">
                 </div>
 
                 <div class="form-grid-2 mb-3">
@@ -175,7 +175,7 @@ function openTutorModal(data = null) {
                     </div>
                     <div class="form-group">
                         <label class="form-label">E-mail</label>
-                        <input type="email" name="email" class="form-control" value="${isEdit ? (data.email || '') : ''}" placeholder="email@exemplo.com" oninput="suggestUsername()">
+                        <input type="email" name="email" class="form-control" value="${isEdit ? (data.email || '') : ''}" placeholder="email@exemplo.com" oninput="suggestUsername(this.form)">
                     </div>
                 </div>
 
@@ -257,19 +257,20 @@ function openTutorModal(data = null) {
     UI.showModal(isEdit ? 'Editar Cliente' : 'Novo Cliente', html);
 }
 
-function suggestUsername() {
-    const nome = document.querySelector('input[name="nome"]').value;
-    const email = document.querySelector('input[name="email"]').value;
-    const usernameInput = document.getElementById('tutor-username');
+function suggestUsername(form = null) {
+    if (!form) form = document.getElementById('form-tutor');
+    if (!form) return;
+
+    const nome = form.querySelector('input[name="nome"]').value;
+    const email = form.querySelector('input[name="email"]').value;
+    const usernameInput = form.querySelector('#tutor-username');
     
-    // Se o usuário já começou a digitar manualmente no campo username, não sobrescrevemos
-    if (usernameInput.dataset.manual === 'true') return;
+    if (!usernameInput || usernameInput.dataset.manual === 'true') return;
 
     let suggestion = '';
     if (email) {
         suggestion = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
     } else if (nome) {
-        // Pega o primeiro e segundo nome se existir
         const parts = nome.trim().split(' ');
         suggestion = parts[0].toLowerCase();
         if (parts.length > 1) suggestion += parts[1].charAt(0).toLowerCase();

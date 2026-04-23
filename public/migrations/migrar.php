@@ -1,6 +1,6 @@
 <?php
 /**
- * Unified Migration Script - SaaS Flow (v2.4.0)
+ * Unified Migration Script - SaaS Flow (v2.8.0)
  * Responsável pela evolução do esquema do banco de dados de forma centralizada e idempotente.
  * Regras: .agenterules.md (Seção 3)
  */
@@ -75,7 +75,7 @@ function addIndex(string $table, string $indexName, string $columns): void {
 
 // --- EXECUÇÃO DAS MIGRAÇÕES ---
 
-addLog("Iniciando Migração Centralizada v2.5.0...");
+addLog("Iniciando Migração Centralizada v2.8.0...");
 
 // 1. Tabelas Base (SaaS Core)
 safeExec("CREATE TABLE IF NOT EXISTS `cp_settings` (
@@ -163,6 +163,7 @@ safeExec("CREATE TABLE IF NOT EXISTS `cp_pedidos_loja` (
   `observacoes` TEXT DEFAULT NULL,
   `total` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   `status` ENUM('pendente', 'confirmado', 'cancelado', 'entregue') DEFAULT 'pendente',
+  `cashback_used` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
   `itens_json` JSON DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -203,6 +204,7 @@ addCol('cp_pedidos_loja', 'payment_status', "ENUM('pending', 'paid') DEFAULT 'pe
 addCol('cp_pedidos_loja', 'payment_id', 'VARCHAR(255) NULL');
 addCol('cp_pedidos_loja', 'frete', 'DECIMAL(10,2) DEFAULT 0.00');
 addCol('cp_pedidos_loja', 'tutor_id', 'INT NULL');
+addCol('cp_pedidos_loja', 'cashback_used', 'DECIMAL(10,2) DEFAULT 0.00');
 
 // 10. Módulo de Categorias de Produtos
 safeExec("CREATE TABLE IF NOT EXISTS `cp_categorias_produtos` (
@@ -244,7 +246,27 @@ function syncTutoresToUsers(): void {
         $check->execute([$t['id']]);
         
         if (!$check->fetch()) {
-            $username = !empty($t['email']) ? $t['email'] : ($t['cpf'] ? preg_replace('/\D/', '', $t['cpf']) : 'tutor_' . $t['id']);
+            $email = trim($t['email'] ?? '');
+            
+            // Verificação de Email Duplicado para evitar erro 1062
+            if (!empty($email)) {
+                $checkEmail = $pdo->prepare("SELECT id FROM cp_users WHERE email = ?");
+                $checkEmail->execute([$email]);
+                if ($checkEmail->fetch()) {
+                    addLog("⚠️ Ignorado: Email '$email' já existe para outro usuário.");
+                    continue;
+                }
+            }
+
+            $username = !empty($email) ? $email : ($t['cpf'] ? preg_replace('/\D/', '', $t['cpf']) : 'tutor_' . $t['id']);
+            
+            // Verificação de Username Duplicado
+            $checkUser = $pdo->prepare("SELECT id FROM cp_users WHERE username = ?");
+            $checkUser->execute([$username]);
+            if ($checkUser->fetch()) {
+                $username = $username . '_' . $t['id']; // Fallback se o username já existir
+            }
+
             $rawPass = !empty($t['cpf']) ? preg_replace('/\D/', '', $t['cpf']) : 'Tutor123';
             $password = password_hash($rawPass, PASSWORD_DEFAULT);
 
@@ -254,13 +276,13 @@ function syncTutoresToUsers(): void {
                     $t['company_id'],
                     $t['id'],
                     $t['nome'],
-                    $t['email'] ?? '',
+                    $email,
                     $username,
                     $password
                 ]);
-                addLog("User criado p/: " . $t['nome']);
+                addLog("✅ User criado p/: " . $t['nome']);
             } catch (Exception $e) {
-                addLog("Erro user " . $t['nome'] . ": " . $e->getMessage());
+                addLog("❌ Erro user " . $t['nome'] . ": " . $e->getMessage());
             }
         }
     }
@@ -286,6 +308,7 @@ safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_logs` (
     `order_id` INT DEFAULT NULL,
     `amount` DECIMAL(10, 2) NOT NULL,
     `type` ENUM('credit', 'debit') NOT NULL,
+    `source` VARCHAR(50) DEFAULT 'admin' COMMENT 'Origem: order, admin, system',
     `description` VARCHAR(255) DEFAULT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_company_tutor` (`company_id`, `tutor_id`),
@@ -294,6 +317,8 @@ safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_cashback_logs");
 
 addCol('cp_tutores', 'cashback_balance', 'DECIMAL(10, 2) DEFAULT 0.00');
+addCol('cp_cashback_logs', 'source', "VARCHAR(50) DEFAULT 'admin' AFTER type");
+addCol('cp_cashback_logs', 'order_id', "INT NULL AFTER tutor_id");
 
 // --- Cashback Withdrawals (ClubePet+) ---
 safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_withdrawals` (
@@ -334,10 +359,234 @@ safeExec("CREATE TABLE IF NOT EXISTS `cp_cashback_loans` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;", "Tabela cp_cashback_loans");
 
 // --- RESPOSTA FINAL ---
-header('Content-Type: application/json');
-echo json_encode([
-    'success' => true,
-    'message' => 'Migração unificada v2.5.0 concluída!',
-    'version' => 'v2.5.0',
-    'logs'    => $logs
-], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+$version = 'v2.8.0';
+if (($_GET['format'] ?? '') === 'json') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'message' => "Migração unificada $version concluída!",
+        'version' => $version,
+        'logs'    => $logs
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migração de Sistema | <?= $version ?></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--primary);
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 16px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .logs-container {
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.2);
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .logs-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .logs-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .logs-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .log-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            display: flex;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+
+        .log-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            white-space: nowrap;
+            opacity: 0.6;
+        }
+
+        .log-msg {
+            word-break: break-all;
+        }
+
+        .log-success { color: var(--success); }
+        .log-error { color: var(--error); background: rgba(239, 68, 68, 0.05); }
+        .log-warning { color: var(--warning); background: rgba(245, 158, 11, 0.05); }
+        .log-info { color: var(--info); }
+
+        .footer {
+            padding: 20px 40px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stat-item b {
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Migração Centralizada</h1>
+            <p>Evolução de esquema e sincronização de dados</p>
+            <div class="status-badge">
+                <span style="width: 8px; height: 8px; background: currentColor; border-radius: 50%; margin-right: 8px; display: inline-block;"></span>
+                Versão <?= $version ?> Concluída
+            </div>
+        </div>
+
+        <div class="logs-container">
+            <?php foreach ($logs as $log): 
+                $class = 'log-info';
+                if (strpos($log, '✅') !== false) $class = 'log-success';
+                if (strpos($log, '❌') !== false) $class = 'log-error';
+                if (strpos($log, '⚠️') !== false) $class = 'log-warning';
+                
+                // Extract time if exists [HH:MM:SS]
+                $time = '';
+                if (preg_match('/^\[(\d{2}:\d{2}:\d{2})\]/', $log, $matches)) {
+                    $time = $matches[1];
+                    $log = trim(str_replace($matches[0], '', $log));
+                }
+            ?>
+                <div class="log-item <?= $class ?>">
+                    <?php if ($time): ?><span class="log-time"><?= $time ?></span><?php endif; ?>
+                    <span class="log-msg"><?= htmlspecialchars($log) ?></span>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="footer">
+            <div class="stats">
+                <div class="stat-item">Logs: <b><?= count($logs) ?></b></div>
+                <div class="stat-item">Ambiente: <b><?= defined('APP_ENV') ? APP_ENV : 'Production' ?></b></div>
+            </div>
+            <a href="/" class="btn">Voltar para o Sistema</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-scroll to bottom of logs
+        const container = document.querySelector('.logs-container');
+        container.scrollTop = container.scrollHeight;
+    </script>
+</body>
+</html>
+<?php

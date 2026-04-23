@@ -16,7 +16,8 @@
         <a href="<?php echo SITE_URL; ?>/app/clube-pet/pedidos" class="btn-primary-glass">
             <i data-lucide="shopping-bag" class="icon-lucide"></i> Gerenciar Pedidos
         </a>
-        <a href="<?php echo SITE_URL; ?>/<?php echo $_SESSION['company_slug'] ?? 'clube-pet'; ?>/clube-pet" target="_blank" class="btn-secondary">
+        <a href="<?php echo SITE_URL; ?>/<?php echo $_SESSION['company_slug'] ?? 'clube-pet'; ?>/clube-pet"
+            target="_blank" class="btn-secondary">
             <i data-lucide="external-link" class="icon-lucide"></i> Ver ClubePet+
         </a>
         <button class="btn-primary" onclick="openProdutoModal()">
@@ -50,9 +51,11 @@
                     <?php foreach ($produtos as $p): ?>
                         <tr>
                             <td>
-                                <div class="product-capa-thumb" style="width: 50px; height: 50px; border-radius: 8px; background: #f0f0f0; overflow: hidden; border: 1px solid var(--border);">
+                                <div class="product-capa-thumb"
+                                    style="width: 50px; height: 50px; border-radius: 8px; background: #f0f0f0; overflow: hidden; border: 1px solid var(--border);">
                                     <?php if ($p['capa']): ?>
-                                        <img src="<?php echo SITE_URL . $p['capa']; ?>" alt="Capa" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="<?php echo SITE_URL . $p['capa']; ?>" alt="Capa"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
                                     <?php else: ?>
                                         <div class="d-flex align-items-center justify-content-center h-100 text-muted">
                                             <i data-lucide="package" class="icon-lucide icon-sm"></i>
@@ -65,11 +68,13 @@
                                 </div>
                             </td>
                             <td>
-                                <div style="font-weight: 600; color: var(--text-main);"><?php echo htmlspecialchars($p['nome']); ?></div>
-                                <div style="font-size: 11px; color: var(--text-muted);"><?php echo htmlspecialchars(mb_strimwidth($p['descricao'] ?: '', 0, 50, '...')); ?></div>
+                                <div style="font-weight: 600; color: var(--text-main);">
+                                    <?php echo htmlspecialchars($p['nome']); ?></div>
+                                <div style="font-size: 11px; color: var(--text-muted);">
+                                    <?php echo htmlspecialchars(mb_strimwidth($p['descricao'] ?: '', 0, 50, '...')); ?></div>
                             </td>
                             <td>
-                                <?php 
+                                <?php
                                 $cat_nome = '—';
                                 if (!empty($p['categoria_id'])) {
                                     $cat = array_filter($categorias, fn($c) => $c['id'] == $p['categoria_id']);
@@ -83,13 +88,16 @@
                             <td>
                                 <?php if ($p['em_promocao']): ?>
                                     <div class="d-flex align-items-center gap-2">
-                                        <span class="text-muted" style="text-decoration: line-through; font-size: 11px;">R$ <?php echo number_format((float)$p['preco'], 2, ',', '.'); ?></span>
-                                        <span style="color: #e11d48; font-weight: 700; font-size: 14px;">R$ <?php echo number_format((float)$p['preco_promocional'], 2, ',', '.'); ?></span>
+                                        <span class="text-muted" style="text-decoration: line-through; font-size: 11px;">R$
+                                            <?php echo number_format((float) $p['preco'], 2, ',', '.'); ?></span>
+                                        <span style="color: #e11d48; font-weight: 700; font-size: 14px;">R$
+                                            <?php echo number_format((float) $p['preco_promocional'], 2, ',', '.'); ?></span>
                                     </div>
-                                    <span class="badge" style="background: #e11d48; color: #fff; font-size: 9px; padding: 2px 6px; width: fit-content;">Clube</span>
+                                    <span class="badge"
+                                        style="background: #e11d48; color: #fff; font-size: 9px; padding: 2px 6px; width: fit-content;">Clube</span>
                                 <?php else: ?>
                                     <div style="font-weight: 700; font-size: 14px; color: var(--primary);">
-                                        R$ <?php echo number_format((float)$p['preco'], 2, ',', '.'); ?>
+                                        R$ <?php echo number_format((float) $p['preco'], 2, ',', '.'); ?>
                                     </div>
                                 <?php endif; ?>
                             </td>
@@ -101,10 +109,12 @@
                                 <?php endif; ?>
                             </td>
                             <td class="text-right">
-                                <button onclick='editProduto(<?php echo json_encode($p); ?>)' class="btn-user-action" title="Editar">
+                                <button onclick='editProduto(<?php echo json_encode($p); ?>)' class="btn-user-action"
+                                    title="Editar">
                                     <i data-lucide="edit-3" class="icon-lucide"></i>
                                 </button>
-                                <button onclick="deleteProduto(<?php echo $p['id']; ?>)" class="btn-user-action btn-user-delete" title="Excluir">
+                                <button onclick="deleteProduto(<?php echo $p['id']; ?>)" class="btn-user-action btn-user-delete"
+                                    title="Excluir">
                                     <i data-lucide="trash-2" class="icon-lucide"></i>
                                 </button>
                             </td>
@@ -117,10 +127,10 @@
 </div>
 
 <script>
-function openProdutoModal(data = null) {
-    const isEdit = data !== null;
-    
-    const html = `
+    function openProdutoModal(data = null) {
+        const isEdit = data !== null;
+
+        const html = `
         <form class="ajax-form" id="form-produto" action="<?php echo SITE_URL; ?>/api/produtos/save" enctype="multipart/form-data">
             <div class="modal-body-scroll">
                 <input type="hidden" name="id" value="${isEdit ? data.id : ''}">
@@ -204,64 +214,64 @@ function openProdutoModal(data = null) {
                 </div>
             </div>
 
-            <div class="modal-footer mt-4">
+            <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="UI.closeModal()">Cancelar</button>
                 <button type="submit" class="btn-primary">${isEdit ? 'Atualizar Produto' : 'Adicionar Produto'}</button>
             </div>
         </form>
     `;
 
-    UI.showModal(isEdit ? 'Editar Produto' : 'Novo Produto', html);
-    UI.initMasks();
-    lucide.createIcons();
-}
-
-function previewProdutoImage(input) {
-    const preview = document.getElementById('img-preview');
-    const container = document.getElementById('img-preview-container');
-    const placeholder = document.getElementById('upload-placeholder');
-    const nameLabel = document.getElementById('img-name-preview');
-
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            container.style.display = 'block';
-            placeholder.style.display = 'none';
-            nameLabel.innerText = 'Trocar Foto';
-        }
-        reader.readAsDataURL(input.files[0]);
+        UI.showModal(isEdit ? 'Editar Produto' : 'Novo Produto', html);
+        UI.initMasks();
+        lucide.createIcons();
     }
-}
 
-function togglePromoField(el) {
-    const checkbox = el.querySelector('input[type="checkbox"]');
-    const promoGroup = document.getElementById('promo-price-group');
-    
-    checkbox.checked = !checkbox.checked;
-    el.classList.toggle('active', checkbox.checked);
-    
-    if (checkbox.checked) {
-        promoGroup.style.display = 'block';
-        promoGroup.querySelector('input').focus();
-    } else {
-        promoGroup.style.display = 'none';
-    }
-}
+    function previewProdutoImage(input) {
+        const preview = document.getElementById('img-preview');
+        const container = document.getElementById('img-preview-container');
+        const placeholder = document.getElementById('upload-placeholder');
+        const nameLabel = document.getElementById('img-name-preview');
 
-function editProduto(data) {
-    openProdutoModal(data);
-}
-
-async function deleteProduto(id) {
-    if (await UI.confirmAction('Excluir Produto', 'Deseja realmente remover este produto? Esta ação não pode ser desfeita.')) {
-        const res = await UI.request('<?php echo SITE_URL; ?>/api/produtos/delete', {
-            id: id,
-            nonce: '<?php echo $nonce_delete; ?>'
-        });
-        if (res && res.success) {
-            location.reload();
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                container.style.display = 'block';
+                placeholder.style.display = 'none';
+                nameLabel.innerText = 'Trocar Foto';
+            }
+            reader.readAsDataURL(input.files[0]);
         }
     }
-}
+
+    function togglePromoField(el) {
+        const checkbox = el.querySelector('input[type="checkbox"]');
+        const promoGroup = document.getElementById('promo-price-group');
+
+        checkbox.checked = !checkbox.checked;
+        el.classList.toggle('active', checkbox.checked);
+
+        if (checkbox.checked) {
+            promoGroup.style.display = 'block';
+            promoGroup.querySelector('input').focus();
+        } else {
+            promoGroup.style.display = 'none';
+        }
+    }
+
+    function editProduto(data) {
+        openProdutoModal(data);
+    }
+
+    async function deleteProduto(id) {
+        if (await UI.confirmAction('Excluir Produto', 'Deseja realmente remover este produto? Esta ação não pode ser desfeita.')) {
+            const res = await UI.request('<?php echo SITE_URL; ?>/api/produtos/delete', {
+                id: id,
+                nonce: '<?php echo $nonce_delete; ?>'
+            });
+            if (res && res.success) {
+                location.reload();
+            }
+        }
+    }
 </script>

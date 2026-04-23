@@ -51,11 +51,8 @@
                                 <span class="badge badge-soft-primary"><?php echo $count; ?> produtos</span>
                             </td>
                             <td class="text-right">
-                                <button onclick='editCategoria(<?php echo json_encode($c); ?>)' class="btn-user-action" title="Editar">
-                                    <i data-lucide="edit-3" class="icon-lucide"></i>
-                                </button>
-                                <button onclick="deleteCategoria(<?php echo $c['id']; ?>)" class="btn-user-action btn-user-delete" title="Excluir">
-                                    <i data-lucide="trash-2" class="icon-lucide"></i>
+                                <button class="gear-btn" onclick='openCategoriasDropdown(event, <?php echo json_encode($c, JSON_HEX_APOS | JSON_HEX_QUOT); ?>)'>
+                                    <i data-lucide="settings"></i> Ações
                                 </button>
                             </td>
                         </tr>
@@ -67,6 +64,14 @@
 </div>
 
 <script>
+function openCategoriasDropdown(e, c) {
+    const html = `
+        <button onclick="editCategoria(${JSON.stringify(c).replace(/"/g, '&quot;')})"><i data-lucide="edit-3"></i> Editar Categoria</button>
+        <button class="text-danger" onclick="deleteCategoria(${c.id})"><i data-lucide="trash-2"></i> Excluir Registro</button>
+    `;
+    UI.openDropdown(e, html);
+}
+
 function openCategoriaModal(data = null) {
     const isEdit = data !== null;
     
@@ -82,7 +87,7 @@ function openCategoriaModal(data = null) {
                 </div>
             </div>
 
-            <div class="modal-footer mt-4">
+            <div class="modal-footer">
                 <button type="button" class="btn-secondary" onclick="UI.closeModal()">Cancelar</button>
                 <button type="submit" class="btn-primary">${isEdit ? 'Atualizar Categoria' : 'Adicionar Categoria'}</button>
             </div>

@@ -15,11 +15,11 @@
     </div>
     <div class="d-flex align-items-center gap-2">
         <button class="btn-primary px-4 py-2 shadow-primary rounded-12 fw-800 d-flex align-items-center gap-2" 
-                onclick='openTutorUploadModal(<?php echo json_encode($tutor, JSON_HEX_APOS | JSON_HEX_QUOT); ?>)'>
+                onclick="openTutorUploadModal(<?php echo htmlspecialchars(json_encode($tutor), ENT_QUOTES, 'UTF-8'); ?>)">
             <i data-lucide="file-up" class="icon-lucide icon-xs"></i> Anexar Documento
         </button>
         <button class="btn-primary px-4 py-2 shadow-primary rounded-12 fw-800 d-flex align-items-center gap-2" 
-                onclick='openTutorEditModal(<?php echo json_encode($tutor, JSON_HEX_APOS | JSON_HEX_QUOT); ?>)'>
+                onclick="openTutorEditModal(<?php echo htmlspecialchars(json_encode($tutor), ENT_QUOTES, 'UTF-8'); ?>)">
             <i data-lucide="edit-3" class="icon-lucide icon-xs"></i> Editar Cadastro
         </button>
     </div>
@@ -276,7 +276,7 @@ function openTutorEditModal(data) {
 
                 <div class="form-group mb-3">
                     <label class="form-label">Nome Completo *</label>
-                    <input type="text" name="nome" class="form-control" value="${data.nome || ''}" required placeholder="Nome do proprietário">
+                    <input type="text" name="nome" class="form-control" value="${data.nome || ''}" required placeholder="Nome do proprietário" oninput="suggestUsername(this.form)">
                 </div>
 
                 <div class="form-grid-2 mb-3">
@@ -286,7 +286,7 @@ function openTutorEditModal(data) {
                     </div>
                     <div class="form-group">
                         <label class="form-label">E-mail</label>
-                        <input type="email" name="email" class="form-control" value="${data.email || ''}" placeholder="email@exemplo.com">
+                        <input type="email" name="email" class="form-control" value="${data.email || ''}" placeholder="email@exemplo.com" oninput="suggestUsername(this.form)">
                     </div>
                 </div>
 
@@ -380,6 +380,32 @@ function openTutorEditModal(data) {
     UI.showModal('Editar Dados do Cliente', html);
     if(window.lucide) lucide.createIcons();
     if(window.UI && UI.initMasks) UI.initMasks();
+}
+
+function suggestUsername(form = null) {
+    if (!form) form = document.getElementById('form-tutor-edit');
+    if (!form) return;
+
+    const nomeInput = form.querySelector('input[name="nome"]');
+    const emailInput = form.querySelector('input[name="email"]');
+    const usernameInput = form.querySelector('input[name="username"]');
+    
+    if (!usernameInput || usernameInput.readOnly) return;
+
+    const nome = nomeInput ? nomeInput.value : '';
+    const email = emailInput ? emailInput.value : '';
+
+    let suggestion = '';
+    if (email) {
+        suggestion = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    } else if (nome) {
+        const parts = nome.trim().split(' ');
+        suggestion = parts[0].toLowerCase();
+        if (parts.length > 1) suggestion += parts[1].charAt(0).toLowerCase();
+        suggestion = suggestion.replace(/[^a-z0-9]/g, '');
+    }
+    
+    usernameInput.value = suggestion;
 }
 
 /**

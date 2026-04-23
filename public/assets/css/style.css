@@ -1351,7 +1351,7 @@ select.form-control option {
         width: 280px !important;
         max-width: 85% !important;
         background-color: var(--bg-sidebar) !important;
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.9);
+        box-shadow: none !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         overflow-y: auto !important;
     }

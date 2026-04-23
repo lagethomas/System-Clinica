@@ -471,6 +471,93 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
         @media (max-width: 480px) {
             .clube-cards-grid { grid-template-columns: 1fr; }
         }
+
+        /* User Logged Info Floating Card */
+        .user-logged-info {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(22, 25, 30, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .user-logged-info:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar-mini {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .user-details-mini {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name-mini {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .user-balance-mini {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .logout-link-mini {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            margin-left: 4px;
+            transition: color 0.2s;
+        }
+
+        .logout-link-mini:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .user-logged-info {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                justify-content: space-between;
+                padding: 12px 20px;
+                background: rgba(var(--primary-rgb), 0.95);
+                border-color: rgba(255,255,255,0.2);
+            }
+            .user-name-mini { color: #fff; }
+            .user-balance-mini { color: #fff; opacity: 0.9; }
+            .logout-link-mini { color: #fff; }
+            
+            /* Adjust cart floating to not overlap */
+            .cart-floating {
+                bottom: 90px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -479,6 +566,19 @@ $systemLogo = !empty($company['logo']) ? $SITE_URL . '/' . ltrim($company['logo'
     <a href="<?php echo !empty($company['slug']) ? $SITE_URL . '/' . $company['slug'] . '/login' : $SITE_URL . '/login'; ?>" class="admin-link-top">
         <i data-lucide="shield" style="width:14px;height:14px;"></i> Painel Admin
     </a>
+
+    <?php if ($client_data): ?>
+    <a href="<?php echo $SITE_URL; ?>/app/tutor/dashboard" class="user-logged-info">
+        <div class="user-avatar-mini"><?php echo strtoupper(substr($client_data['nome'], 0, 1)); ?></div>
+        <div class="user-details-mini">
+            <span class="user-name-mini">Olá, <?php echo explode(' ', $client_data['nome'])[0]; ?></span>
+            <span class="user-balance-mini">Saldo: R$ <?php echo number_format((float)$client_data['cashback_balance'], 2, ',', '.'); ?></span>
+        </div>
+        <div class="logout-link-mini" onclick="event.preventDefault(); window.location.href='<?php echo $SITE_URL; ?>/logout.php';">
+            <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+        </div>
+    </a>
+    <?php endif; ?>
 
     <div class="container" style="padding-top:30px;">
 

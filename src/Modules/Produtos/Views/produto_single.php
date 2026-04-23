@@ -181,6 +181,9 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
             padding-top: 10px;
         }
 
+        .method-option.active { border-color: var(--primary); background: rgba(var(--primary-rgb), 0.1); color: var(--primary); }
+        .method-option.active-cashback { border-color: var(--primary); background: rgba(var(--primary-rgb), 0.1); color: var(--primary); }
+
         .single-badge {
             display: inline-flex;
             align-items: center;
@@ -409,6 +412,92 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
                 display: none;
             }
         }
+        /* User Logged Info Floating Card */
+        .user-logged-info {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(22, 25, 30, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1001;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .user-logged-info:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar-mini {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        .user-details-mini {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name-mini {
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .user-balance-mini {
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .logout-link-mini {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            margin-left: 4px;
+            transition: color 0.2s;
+        }
+
+        .logout-link-mini:hover {
+            color: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .user-logged-info {
+                top: auto;
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                justify-content: space-between;
+                padding: 12px 20px;
+                background: rgba(var(--primary-rgb), 0.95);
+                border-color: rgba(255,255,255,0.2);
+            }
+            .user-name-mini { color: #fff; }
+            .user-balance-mini { color: #fff; opacity: 0.9; }
+            .logout-link-mini { color: #fff; }
+            
+            /* Adjust cart floating to not overlap */
+            .cart-floating {
+                bottom: 90px !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -425,6 +514,24 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
             <?php endif; ?>
             <span class="topbar-company-name"><?php echo htmlspecialchars($company['name']); ?></span>
         </a>
+
+    <!-- Admin Link -->
+    <a href="<?php echo !empty($company['slug']) ? $SITE_URL . '/' . $company['slug'] . '/login' : $SITE_URL . '/login'; ?>" class="admin-link-top">
+        <i data-lucide="shield" style="width:14px;height:14px;"></i> Painel Admin
+    </a>
+
+    <?php if ($client_data): ?>
+    <a href="<?php echo $SITE_URL; ?>/app/tutor/dashboard" class="user-logged-info">
+        <div class="user-avatar-mini"><?php echo strtoupper(substr($client_data['nome'], 0, 1)); ?></div>
+        <div class="user-details-mini">
+            <span class="user-name-mini">Olá, <?php echo explode(' ', $client_data['nome'])[0]; ?></span>
+            <span class="user-balance-mini">Saldo: R$ <?php echo number_format((float)$client_data['cashback_balance'], 2, ',', '.'); ?></span>
+        </div>
+        <div class="logout-link-mini" onclick="event.preventDefault(); window.location.href='<?php echo $SITE_URL; ?>/logout.php';">
+            <i data-lucide="log-out" style="width:16px;height:16px;"></i>
+        </div>
+    </a>
+    <?php endif; ?>
         <a href="<?php echo $lojaUrl; ?>" class="btn-back-loja">
             <i data-lucide="arrow-left" style="width:16px;height:16px;"></i>
             Voltar ao ClubePet+
@@ -586,7 +693,7 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
             <!-- Delivery Method Selector -->
             <div class="form-group-digital-lg">
                 <label class="checkout-label-bold">Método de Entrega</label>
-                <div class="delivery-method-grid">
+                <div class="delivery-method-grid mb-3">
                     <div class="method-option active" id="method-delivery" onclick="setDeliveryMethod('delivery')">
                         <i data-lucide="truck" style="width:18px;height:18px;"></i>
                         <span>Entrega</span>
@@ -597,6 +704,28 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
                     </div>
                 </div>
             </div>
+
+            <?php if ($client_data && (float)$client_data['cashback_balance'] > 0): ?>
+            <div class="form-group-digital-lg mt-4">
+                <label class="checkout-label-bold">Deseja usar seu Saldo Cashback?</label>
+                <div class="delivery-method-grid mb-3">
+                    <div class="method-option" id="use-cashback-trigger" onclick="toggleCashbackUsage()" style="flex: 1; max-width: 200px;">
+                        <i data-lucide="wallet" style="width:18px;height:18px;"></i>
+                        <div class="text-start">
+                            <span class="d-block" style="font-size: 13px;">Usar Saldo</span>
+                            <small class="text-muted" style="font-size: 10px; display: block; margin-top: -2px;">R$ <?php echo number_format((float)$client_data['cashback_balance'], 2, ',', '.'); ?></small>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cashback-usage-container" style="display: none; animation: slideDown 0.3s ease;">
+                    <div class="form-group-digital">
+                        <label class="checkout-label">Quanto deseja usar? (Máx R$ <?php echo number_format((float)$client_data['cashback_balance'], 2, ',', '.'); ?>)</label>
+                        <input type="text" id="cashback_amount_to_use" class="form-control-digital" placeholder="0,00" oninput="renderCart()">
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Address Fields Wrapper -->
             <div id="address-fields-wrapper">
@@ -644,6 +773,10 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
             <div class="cart-total-row delivery-fee-row" id="delivery-fee-row">
                 <span style="font-size:14px;color:var(--text-muted);">Frete</span>
                 <span id="cart-delivery" style="font-size:14px;color:var(--text-muted);">+ R$ 0,00</span>
+            </div>
+            <div class="cart-total-row" id="cashback-discount-row" style="display: none;">
+                <span style="font-size:14px;color:#22c55e;">Desconto Cashback</span>
+                <span id="cart-cashback-discount" style="font-size:14px;color:#22c55e;">- R$ 0,00</span>
             </div>
             <div class="cart-total-row">
                 <span>Total</span>
@@ -858,6 +991,32 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
         } else {
             devFeeRow.classList.add('hidden');
         }
+
+        // Cashback Discount Calculation
+        const cashbackRow = document.getElementById('cashback-discount-row');
+        const cashbackVal = document.getElementById('cart-cashback-discount');
+        
+        if (isUsingCashback) {
+            const input = document.getElementById('cashback_amount_to_use');
+            if (input) {
+                let toUse = parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
+                
+                // Limit to available and subtotal
+                if (toUse > availableCashback) toUse = availableCashback;
+                if (toUse > subtotal) toUse = subtotal;
+                
+                if (toUse > 0) {
+                    total -= toUse;
+                    cashbackRow.style.display = 'flex';
+                    cashbackVal.innerText = '- R$ ' + toUse.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                } else {
+                    cashbackRow.style.display = 'none';
+                }
+            }
+        } else if (cashbackRow) {
+            cashbackRow.style.display = 'none';
+        }
+
         totalEl.innerText = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits:2});
         if (window.lucide) lucide.createIcons();
     }
@@ -924,10 +1083,41 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
         }
     }
 
+    let isUsingCashback = false;
+    let cashbackUsed = 0;
+    let availableCashback = parseFloat('<?php echo $client_data['cashback_balance'] ?? 0; ?>');
+
+    function toggleCashbackUsage() {
+        const container = document.getElementById('cashback-usage-container');
+        const trigger = document.getElementById('use-cashback-trigger');
+        if (!container) return;
+
+        isUsingCashback = !isUsingCashback;
+        container.style.display = isUsingCashback ? 'block' : 'none';
+        trigger.classList.toggle('active', isUsingCashback);
+        
+        if (!isUsingCashback) {
+            document.getElementById('cashback_amount_to_use').value = '';
+            cashbackUsed = 0;
+        } else {
+            // Auto-fill with max possible (available or subtotal)
+            const subtotal = cart.reduce((sum, it) => sum + (it.preco * it.quantidade), 0);
+            const toUse = Math.min(availableCashback, subtotal);
+            document.getElementById('cashback_amount_to_use').value = toUse.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
+        renderCart();
+    }
+
     async function submitOrder(mode = 'delivery') {
         const name = document.getElementById('order_name').value;
         const phone = document.getElementById('order_phone').value;
         if (!name || !phone) { UI.showToast('Preencha nome e telefone', 'warning'); return; }
+
+        let currentCashbackUsed = 0;
+        if (isUsingCashback) {
+            const input = document.getElementById('cashback_amount_to_use');
+            currentCashbackUsed = parseFloat(input.value.replace(/\./g, '').replace(',', '.')) || 0;
+        }
 
         const orderData = {
             company_id: COMPANY_ID, cliente_nome: name, cliente_telefone: phone,
@@ -939,6 +1129,7 @@ $precoFinal = ($emPromocao && $precoPromo) ? $precoPromo : $preco;
             number: document.getElementById('order_number').value,
             complement: document.getElementById('order_complement').value,
             tipo: deliveryMethod, payment_mode: mode,
+            cashback_used: currentCashbackUsed,
             observacoes: document.getElementById('order_notes').value,
             itens: cart.map(it => ({ id: it.id, nome: it.nome, preco: it.preco, quantidade: it.quantidade }))
         };
