@@ -8,7 +8,7 @@
 <div class="welcome-container mb-5">
     <div class="row align-items-center">
         <div class="col-md-8">
-            <h1 class="welcome-title mb-2">Bem-vindo de volta, <span class="text-primary"><?php echo htmlspecialchars($user_name); ?></span>!</h1>
+            <h1 class="welcome-title mb-2">Bem-vindo de volta, <span class="text-primary"><?php echo htmlspecialchars($user_name ?? ''); ?></span>!</h1>
             <p class="welcome-sub text-muted">
                 <?php echo Auth::isAdmin() ? 'Visão global e gerencial do ecossistema SaaS.' : 'Aqui está o resumo operacional da sua clínica para hoje.'; ?>
             </p>
@@ -147,8 +147,8 @@
                     <?php foreach ($vet_stats['recent_appointments'] as $app): ?>
                         <div class="d-flex justify-content-between align-items-center py-2 border-bottom-muted">
                             <div>
-                                <div class="fw-700 small" style="color: var(--text-main);"><?php echo htmlspecialchars($app['pet_nome']); ?></div>
-                                <div class="text-muted small" style="font-size: 11px;"><?php echo htmlspecialchars($app['motivo']); ?></div>
+                                <div class="fw-700 small" style="color: var(--text-main);"><?php echo htmlspecialchars($app['pet_nome'] ?? ''); ?></div>
+                                <div class="text-muted small" style="font-size: 11px;"><?php echo htmlspecialchars($app['motivo'] ?? ''); ?></div>
                             </div>
                             <span class="badge badge-outline-primary" style="font-size: 10px;"><?php echo date('d/m', strtotime($app['data_consulta'])); ?></span>
                         </div>
@@ -195,8 +195,8 @@
                             <?php foreach ($admin_stats['recent_companies'] as $comp): ?>
                                 <tr class="search-result-row">
                                     <td class="py-3">
-                                        <div class="fw-700" style="color: var(--text-main);"><?php echo htmlspecialchars($comp['name']); ?></div>
-                                        <div class="text-muted small">Slug: <?php echo htmlspecialchars($comp['slug']); ?></div>
+                                        <div class="fw-700" style="color: var(--text-main);"><?php echo htmlspecialchars($comp['name'] ?? ''); ?></div>
+                                        <div class="text-muted small">Slug: <?php echo htmlspecialchars($comp['slug'] ?? ''); ?></div>
                                     </td>
                                     <td class="py-3 text-center">
                                         <span class="badge badge-primary-lite" style="font-size: 10px;">
