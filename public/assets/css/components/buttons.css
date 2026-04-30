@@ -1,0 +1,268 @@
+/* ==============================================================
+   BUTTONS COMPONENT
+   Standardized Buttons for the entire system
+   ============================================================== */
+
+/* Reset & Base */
+button {
+    font-family: inherit;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--primary);
+    color: var(--text-on-primary, #fff);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(255, 77, 77, 0.2);
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.3);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+}
+
+/* Glass Buttons */
+.btn-primary-glass {
+    background: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(var(--primary-rgb), 0.2);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: 700;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-primary-glass:hover {
+    background: var(--primary);
+    color: var(--text-on-primary);
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.3);
+}
+
+/* Action Buttons (CRUD icons) */
+.btn-user-action {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    color: var(--text-muted) !important;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-user-action:hover {
+    color: var(--primary) !important;
+    border-color: var(--primary);
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+.btn-user-delete:hover {
+    color: #ff4d4d !important;
+    border-color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
+}
+
+.btn-action {
+    color: var(--primary);
+}
+
+/* Special Button for Actions Gear */
+.gear-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.gear-btn:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Layout Utilities */
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    margin-top: 20px;
+    font-size: 15px;
+}
+
+.btn-modal-submit {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 800;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* Authentication & Security */
+.btn-logout {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 18px;
+    transition: var(--transition);
+}
+
+.btn-logout:hover {
+    color: var(--accent);
+}
+
+.btn-generate-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.btn-generate-password:hover {
+    color: var(--primary-hover);
+}
+
+/* Outline Buttons */
+.btn-primary-outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    transition: all 0.3s ease;
+}
+
+.btn-primary-outline:hover {
+    background: var(--primary);
+    color: #fff !important;
+}
+
+/* Finance Specific Buttons */
+.btn-finance-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid transparent;
+}
+
+.btn-finance-entrada {
+    background: rgba(16, 185, 129, 0.05) !important;
+    color: #10b981 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.btn-finance-entrada:hover {
+    background: #10b981 !important;
+    color: #000 !important;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+}
+
+.btn-finance-saida {
+    background: rgba(239, 68, 68, 0.05) !important;
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.btn-finance-saida:hover {
+    background: #ef4444 !important;
+    color: #fff !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+    .page-header-actions .btn-primary,
+    .page-header-actions .btn-secondary {
+        flex: 1 !important;
+        justify-content: center !important;
+    }
+}
