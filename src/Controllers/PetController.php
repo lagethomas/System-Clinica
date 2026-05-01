@@ -84,6 +84,29 @@ class PetController extends Controller {
         $consultas = Database::fetchAll("SELECT * FROM cp_consultas WHERE pet_id = :pid AND company_id = :cid ORDER BY data_consulta DESC", 
                                         ['pid' => $id, 'cid' => $company_id]);
 
+        // Map columns for compatibility
+        foreach ($consultas as &$c) {
+            $c['motivo'] = $c['servico'] ?? $c['motivo'] ?? 'Consulta';
+            $c['valor'] = (!empty($c['valor_cobrado']) && (float)$c['valor_cobrado'] > 0) ? $c['valor_cobrado'] : ($c['valor'] ?? 0);
+            $c['observacoes'] = $c['descricao'] ?? $c['observacoes'] ?? '';
+        }
+
+        // Fetch attachments for these consultations
+        if (!empty($consultas)) {
+            $consultaIds = array_column($consultas, 'id');
+            $placeholders = implode(',', array_fill(0, count($consultaIds), '?'));
+            $attachments = Database::fetchAll("SELECT * FROM cp_consulta_anexos WHERE consulta_id IN ($placeholders)", $consultaIds);
+            
+            $groupedAnexos = [];
+            foreach ($attachments as $an) {
+                $groupedAnexos[$an['consulta_id']][] = $an;
+            }
+
+            foreach ($consultas as &$c) {
+                $c['anexos'] = $groupedAnexos[$c['id']] ?? [];
+            }
+        }
+
         $this->render('app/pet_perfil', [
             'title' => 'Perfil do Pet: ' . $pet['nome'],
             'pet' => $pet,

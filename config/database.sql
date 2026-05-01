@@ -239,11 +239,13 @@ CREATE TABLE IF NOT EXISTS `cp_planos_pet` (
 CREATE TABLE IF NOT EXISTS `cp_consultas` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `company_id` INT NOT NULL,
+  `tutor_id` INT DEFAULT NULL,
   `pet_id` INT NOT NULL,
   `data_consulta` DATETIME NOT NULL,
   `hora_consulta` TIME DEFAULT NULL,
   `servico` VARCHAR(100) DEFAULT 'Consulta',
   `diagnostico` TEXT DEFAULT NULL,
+  `prescricao` TEXT DEFAULT NULL,
   `descricao` TEXT DEFAULT NULL,
   `valor_cobrado` DECIMAL(10, 2) DEFAULT 0.00,
   `status` ENUM('Agendada', 'Concluída', 'Cancelada') DEFAULT 'Agendada',

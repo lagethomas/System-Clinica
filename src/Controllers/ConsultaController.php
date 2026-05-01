@@ -55,6 +55,7 @@ class ConsultaController extends Controller {
         foreach ($consultas as &$c) {
             $c['motivo'] = $c['servico'] ?? $c['motivo'] ?? 'Consulta';
             $c['valor'] = (!empty($c['valor_cobrado']) && (float)$c['valor_cobrado'] > 0) ? $c['valor_cobrado'] : ($c['valor'] ?? 0);
+            $c['observacoes'] = $c['descricao'] ?? $c['observacoes'] ?? '';
         }
 
         // Fetch attachments for these consultations
@@ -108,13 +109,10 @@ class ConsultaController extends Controller {
             'tutor_id' => (int)$_POST['tutor_id'],
             'pet_id' => !empty($_POST['pet_id']) ? (int)$_POST['pet_id'] : null,
             'data_consulta' => $_POST['data_consulta'] ?? date('Y-m-d H:i:s'),
-            'motivo' => $_POST['motivo'] ?? 'Consulta',
             'servico' => $_POST['motivo'] ?? 'Consulta',
-            'valor' => !empty($_POST['valor']) ? (float)str_replace(',', '.', $_POST['valor']) : 0.00,
             'valor_cobrado' => !empty($_POST['valor']) ? (float)str_replace(',', '.', $_POST['valor']) : 0.00,
             'diagnostico' => $_POST['diagnostico'] ?? null,
-            'prescricao' => $_POST['prescricao'] ?? null,
-            'observacoes' => $_POST['observacoes'] ?? null,
+            'descricao' => $_POST['observacoes'] ?? null,
             'status' => $_POST['status'] ?? 'agendada'
         ];
 
