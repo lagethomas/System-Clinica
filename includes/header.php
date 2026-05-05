@@ -142,6 +142,7 @@ $unread_count = count($unread_notifications);
     }
     ?>
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/style.css'); ?>">
+    <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/buttons.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/theme/' . $theme_slug . '.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/notifications.css'); ?>">
     <link rel="stylesheet" href="<?php echo \App\Core\Controller::asset('/assets/css/components/page-content.css'); ?>">

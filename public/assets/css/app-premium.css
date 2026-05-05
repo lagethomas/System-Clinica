@@ -297,28 +297,6 @@ body {
     justify-content: center;
 }
 
-.btn-primary-glass {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary);
-    border: 1px solid rgba(var(--primary-rgb), 0.2);
-    border-radius: 12px;
-    padding: 10px 20px;
-    font-weight: 700;
-    transition: var(--transition-smooth);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
-    cursor: pointer;
-}
-
-.btn-primary-glass:hover {
-    background: var(--primary);
-    color: var(--text-on-primary);
-    border-color: var(--primary);
-    box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.3);
-}
 
 .border-left-primary-thick {
     border-left: 4px solid var(--primary) !important;

@@ -161,6 +161,47 @@ const UI = {
         });
     },
 
+    confirmAction(title, message, options = {}) {
+        return this.confirm(message, { title, ...options });
+    },
+
+    openDropdown(e, html) {
+        e.stopPropagation();
+        this.closeDropdown();
+
+        const dropdown = document.createElement('div');
+        dropdown.className = 'premium-dropdown';
+        dropdown.innerHTML = html;
+        document.body.appendChild(dropdown);
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const dropdownWidth = 180;
+        
+        dropdown.style.position = 'absolute';
+        dropdown.style.zIndex = '9999';
+        dropdown.style.top = (rect.bottom + window.scrollY + 5) + 'px';
+        dropdown.style.left = (rect.right - dropdownWidth + window.scrollX) + 'px';
+        dropdown.style.width = dropdownWidth + 'px';
+
+        setTimeout(() => dropdown.classList.add('active'), 10);
+
+        const closeDropdown = (event) => {
+            if (!dropdown.contains(event.target)) {
+                dropdown.classList.remove('active');
+                setTimeout(() => dropdown.remove(), 200);
+                document.removeEventListener('click', closeDropdown);
+            }
+        };
+
+        document.addEventListener('click', closeDropdown);
+        if (window.lucide) lucide.createIcons({ root: dropdown });
+    },
+
+    closeDropdown() {
+        const existing = document.querySelector('.premium-dropdown');
+        if (existing) existing.remove();
+    },
+
     prompt(message, options = {}) {
         const defaults = { title: 'Entrada de Dados', confirmText: 'Confirmar', cancelText: 'Cancelar', placeholder: '', defaultValue: '' };
         const config = { ...defaults, ...options };
